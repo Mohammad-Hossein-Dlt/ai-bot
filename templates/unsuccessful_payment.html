@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پرداخت ناموفق</title>
+    <style>
+        @font-face {
+            font-family: 'shabnam';
+            src: url('../shabnam.ttf');
+        }
+        * {
+            font-family: 'shabnam';
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            font-family: 'Arial', sans-serif;
+            direction: rtl;
+        }
+        .payment-box {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+            width: 350px;
+            transition: transform 0.3s;
+        }
+        .payment-box:hover {
+            transform: translateY(-5px);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .payment-id {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #f44336; /* رنگ قرمز برای نشان دادن خطا */
+            font-size: 18px;
+        }
+        .cross-icon {
+            font-size: 50px;
+            color: #f44336; /* رنگ قرمز برای نشان دادن خطا */
+            margin-bottom: 15px;
+        }
+        .open-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #43C79D; /* رنگ سبز */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .open-button:hover {
+            background-color: #00B894; /* رنگ سبز تیره‌تر هنگام هاور */
+            transform: translateY(-2px); /* کمی بالا رفتن هنگام هاور */
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-box">
+        <div class="cross-icon">❌</div>
+        <h2>پرداخت ناموفق بود</h2>
+<!--        <p class="payment-id">شناسه پرداخت: {{ ref_id }}</p>-->
+<!--        <button class="open-button" href="https://ble.me/mhdlt2test2bot" target="_blank">بازکردن ربات بله</button>-->
+    </div>
+</body>
+</html>
