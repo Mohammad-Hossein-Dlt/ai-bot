@@ -70,9 +70,7 @@ class RequestSummary:
 
         if user.tokens >= token_settings.tokens_per_prompt:
             self.inline_keyboard.add_button(
-                # "تولید 🚀",
                 "ارسال پرامت 📄",
-                # callback_data.encode(conversation=True),
                 "conversation",
             )
 

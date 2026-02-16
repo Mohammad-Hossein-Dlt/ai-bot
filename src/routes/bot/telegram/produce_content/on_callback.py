@@ -15,13 +15,6 @@ async def on_callback(
     pattern = request_pattern(request_name, **CallbackDataRequest.aliases)
     decoded = request_decoder(query.data, pattern)
     callback_data = CallbackDataRequest.model_validate(decoded)
-    
-    # print()
-    # print("-" * 40 + "on_callback" + "-" * 40)
-    # print(callback_data.model_dump())
-    # print(len(query.data))
-    # print("c:" in query.data)
-    # print("/" * 40 + "///////////" + "/" * 40)
         
     await request_steps(
         update,

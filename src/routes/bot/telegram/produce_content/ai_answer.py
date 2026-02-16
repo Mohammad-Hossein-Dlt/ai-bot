@@ -17,7 +17,6 @@ from src.usecases.bot.produce_content.steps.choose_prompt import ChoosePrompt
 from src.usecases.bot.produce_content.steps.choose_words_number import ChooseWordsNumber
 from src.usecases.bot.produce_content.steps.choose_tones import ChooseTones
 from src.usecases.bot.produce_content.steps.request_summary import RequestSummary
-from src.usecases.bot.produce_content.steps.enter_prompt import EnterPrompt
 from src.usecases.bot.produce_content.steps.produce import Produce
 from src.usecases.bot.produce_content.cache import ProduceContentCache
 
@@ -95,18 +94,6 @@ async def request_steps(
             reply_markup=keyboard,
         )
 
-    # elif callback_data.step == EnterPrompt.step:
-
-    #     enter_prompt_usecase = EnterPrompt(inline_keyboard)
-    #     text, keyboard = await enter_prompt_usecase.execute(callback_data)
-
-    #     await update.effective_message.edit_text(
-    #         text=text,
-    #         reply_markup=keyboard,
-    #     )
-                
-    #     return ConversationHandler.END
-
     elif callback_data.step == Produce.step:
 
         produce_usecase = Produce(user_repo, token_settings_repo, cache_repo, gpt_client, inline_keyboard)
@@ -138,4 +125,3 @@ async def request_steps(
                 await update.effective_message.reply_text(
                     text,
                 )
-            

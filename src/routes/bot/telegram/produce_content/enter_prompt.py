@@ -27,13 +27,6 @@ async def entry_point(
     chat_id = update.effective_user.id
     get_conversation_usecase = GetConversation(user_repo, cache_repo)
     conversation = await get_conversation_usecase.execute(chat_id)
-    
-    # print()
-    # print("-" * 40 + "entry_point" + "-" * 40)
-    # print(callback_data.model_dump())
-    # print(len(query.data))
-    # print("c:" in query.data)
-    # print("." * 40 + "..........." + "." * 40)
 
     enter_prompt_usecase = EnterPrompt(inline_keyboard)
     text, keyboard = await enter_prompt_usecase.execute(conversation.callback_data)
@@ -46,12 +39,34 @@ async def entry_point(
     return 0
 
 @inject
+async def back_from_conversation(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+    cache_repo: ICacheRepo = Depends(cache_repo_depend),
+    user_repo: IUserRepo = Depends(user_repo_depend),
+) -> int:
+    
+    chat_id = update.effective_user.id
+    
+    get_conversation_usecase = GetConversation(user_repo, cache_repo)
+    conversation = await get_conversation_usecase.execute(chat_id)
+    
+    callback_data = conversation.callback_data
+    
+    await request_steps(
+        update,
+        context,
+        callback_data,
+    )
+    
+    return ConversationHandler.END
+
+@inject
 async def enter_prompt(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
     cache_repo: ICacheRepo = Depends(cache_repo_depend),
     user_repo: IUserRepo = Depends(user_repo_depend),
-    inline_keyboard: IInlineKeyboard = Depends(inline_keyboard_depend),
 ) -> int:
     
     chat_id = update.effective_user.id
@@ -59,9 +74,6 @@ async def enter_prompt(
 
     save_conversation_usecase = SaveConversation(user_repo, cache_repo)
     conversation: ConversationModel = await save_conversation_usecase.execute(chat_id, message={"prompt": prompt})
-    
-    enter_prompt_usecase = EnterPrompt(inline_keyboard)
-    text, keyboard = await enter_prompt_usecase.execute(conversation.callback_data)
     
     callback_data = conversation.callback_data
     

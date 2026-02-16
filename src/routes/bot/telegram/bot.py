@@ -18,7 +18,7 @@ from .show_profile import show_profile
 from .produce_content import request_name as produce_content_request_name
 from .produce_content.ai_answer import request_steps as produce_content_request_steps
 from .produce_content.on_callback import on_callback as produce_content_callback
-from .produce_content.enter_prompt import entry_point, enter_prompt
+from .produce_content.enter_prompt import entry_point, enter_prompt, back_from_conversation
 
 from .produce_image import request_name as produce_image_request_name
 from .produce_image.ai_answer import request_steps as produce_image_request_steps
@@ -82,7 +82,7 @@ async def on_message(
             update,
             context,
         )
-    elif text == CREATE_ARTICLE:
+    elif text == CREATE_VOICE:
         await produce_voice_request_steps(
             update,
             context,
@@ -122,7 +122,6 @@ def start_bot():
     
     enter_prompt_handler = ConversationHandler(
         entry_points=[
-            # CallbackQueryHandler(callback=entry_point, pattern=request_pattern(produce_content_request_name + "cnvtion", **CallbackDataRequest.aliases)),
             CallbackQueryHandler(callback=entry_point, pattern="conversation"),
         ],
         states={
@@ -130,7 +129,9 @@ def start_bot():
                 MessageHandler(filters=filters.TEXT, callback=enter_prompt),
             ],
         },
-        fallbacks=[],
+        fallbacks=[
+            CallbackQueryHandler(callback=back_from_conversation, pattern="back_from_conversation"),
+        ],
     )
     
     application.add_handlers(

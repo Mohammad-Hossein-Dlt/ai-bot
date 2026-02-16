@@ -29,30 +29,4 @@ async def request_steps(
     # inline_keyboard: IInlineKeyboard = Depends(inline_keyboard_depend),
     gpt_client: OpenAI = Depends(gpt_client_depend),
 ):
-    # start_point = callback_data is None
-    
-    # chat_id = update.effective_user.id
-    
-    # callback_data = callback_data or CallbackDataRequest(name=request_name, message_id=update.message.message_id)    
-    # cache_usecase = ProduceContentCache(user_repo, cache_repo, prompts_titles, words_number, tones)
-    # request: RequestModel = await cache_usecase.execute(chat_id, callback_data)
-    
-    prompt = "یک ربات ایرانی در حال برنامه نویسی، سبک کارتونی"
-
-    result = gpt_client.images.generate(
-        model="gpt-image-1.5",
-        prompt=prompt,
-        size="1024x1024"
-    )
-
-    # تبدیل base64 به فایل تصویر
-    image_base64 = result.data[0]
-    print(image_base64)
-        
-    # await update.effective_message.reply_media_group(
-    #     InputMediaPhoto(
-    #         InputFile(
-    #             image_bytes.
-    #         ),
-    #     ),
-    # )
+    pass

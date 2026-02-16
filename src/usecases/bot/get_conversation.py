@@ -1,7 +1,6 @@
 from src.repo.interface.Icache import ICacheRepo
 from src.repo.interface.Iuser_repo import IUserRepo
 from src.models.schemas.bot.conversation_model import ConversationModel
-from src.models.schemas.bot.callback_request import CallbackDataRequest
 from src.domain.schemas.user.user_model import UserModel
 from typing import ClassVar
 

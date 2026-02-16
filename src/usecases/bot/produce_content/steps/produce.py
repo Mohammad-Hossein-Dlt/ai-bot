@@ -8,7 +8,7 @@ from src.models.schemas.bot.request_model import RequestModel
 
 from src.usecases.bot.get_conversation import GetConversation
 
-from src.routes.bot.telegram.general_buttons import home_markup
+from src.routes.bot.telegram.general_buttons import home_markup, back_markup
 from src.infra.utils.pdf_generator import generate_pdf
 
 from prompts.prompt_list import prompts, tone_prompt, words_number_prompt
@@ -66,7 +66,7 @@ class Produce:
             }
             
         try:
-            yield "در حال پردازش...", None, None
+            yield "در حال پردازش...", back_markup, None
             completion = self.gpt_client.chat.completions.create(
                 model="gpt-5.2",
                 store=True,
@@ -88,11 +88,10 @@ class Produce:
             answer = completion.choices[0].message.content
 
         except openai.RateLimitError as e:
-            print(e.message)
-            yield RATE_LIMIT_ERROR, None, None
+            yield RATE_LIMIT_ERROR, home_markup, None
         else:
-            yield answer, None, None
-            await self.user_repo.modify_token_credit(chat_id, -1000)
+            yield answer, home_markup, None
+            await self.user_repo.modify_token_credit(chat_id, -token_settings.tokens_per_prompt)
             pdf_file: BytesIO = generate_pdf(answer)
             yield END_OF_CREATE_ARTICLE, home_markup, pdf_file
         

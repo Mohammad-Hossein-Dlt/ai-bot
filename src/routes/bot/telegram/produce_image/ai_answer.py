@@ -42,24 +42,56 @@ async def request_steps(
     
     prompt = "یک ربات ایرانی در حال برنامه نویسی، سبک کارتونی"
 
-    result = gpt_client.images.generate(
-        model="dall-e-3",
-        prompt=prompt,
-        size="1024x1024"
-    )
-
-    image_base64 = result.data[0]
-    print(image_base64)
-    print(image_base64.url)
-    image_bytes = base64.b64decode(image_base64.b64_json)
-    
-    await update.effective_message.reply_media_group(
-        [
-            InputMediaPhoto(
-                InputFile(
-                    image_bytes,
-                ),
-            ),  
+    result = gpt_client.chat.completions.create(
+        model="gemini-3-pro-image-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            },
         ],
+        modalities=["image", "text"],
+        extra_body={
+            "generationConfig": {"imageConfig": {"aspectRatio": "16:9", "imageSize": "2K"}}
+        },
     )
     
+    if hasattr(result.choices[0].message, "images"):
+        images = getattr(result.choices[0].message, "images")
+        for img in images:
+            if isinstance(img, dict) and "image_url" in img:
+                # img_url = img["image_url"]
+                # if isinstance(img_url, dict):
+                #     print(list(img_url.keys()))
+                # print(f"Image URL: {img["image_url"]["url"][:100]}...")
+                
+                # await update.effective_message.reply_text(base64.b64decode(img["image_url"]["url"]))
+                image_bytes = base64.urlsafe_b64decode(img["image_url"]["url"])
+                print(image_bytes.decode())
+                with open("img.txt", "wb") as f:
+                    # f.write(img["image_url"]["url"])
+                    f.write(image_bytes)
+                
+                await update.effective_message.reply_media_group(
+                    [
+                        InputMediaPhoto(
+                            InputFile(
+                                image_bytes,
+                            ),
+                        ),  
+                    ],
+                )
+    else:
+        await update.effective_message.reply_text("None")
+            
+    # image_bytes = base64.b64decode(image_base64.b64_json)
+    
+    # await update.effective_message.reply_media_group(
+    #     [
+    #         InputMediaPhoto(
+    #             InputFile(
+    #                 image_bytes,
+    #             ),
+    #         ),  
+    #     ],
+    # )

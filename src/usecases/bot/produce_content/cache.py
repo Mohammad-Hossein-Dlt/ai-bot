@@ -27,7 +27,6 @@ class ProduceContentCache:
         self,
         chat_id: str,
         callback_data: CallbackDataRequest,
-        entered_prompt: str | None = None,
     ) -> RequestModel:
         
         user: UserModel = await self.user_repo.get_by_chat_id(chat_id)
@@ -50,10 +49,7 @@ class ProduceContentCache:
                 request.tones.remove(self.tones[abs(callback_data.index)])
             else:
                 request.tones.append(self.tones[callback_data.index])
-                
-        if entered_prompt:
-            request.entered_prompt = entered_prompt
-            
+
         return RequestModel.model_validate(
             self.cache_repo.save(
                 cache_id,
