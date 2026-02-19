@@ -11,14 +11,13 @@ from src.routes.depends.repo_depend import user_repo_depend
 from src.infra.settings.settings import settings
 from src.infra.utils.callback_data import request_pattern, request_decoder
 from src.models.schemas.bot.callback_request import CallbackDataRequest
+
 from .general_buttons import home_markup
-# from bot_routers.add_credit import add_credit
-from .show_profile import show_profile
 
 from .produce_content import request_name as produce_content_request_name
 from .produce_content.ai_answer import request_steps as produce_content_request_steps
 from .produce_content.on_callback import on_callback as produce_content_callback
-from .produce_content.enter_prompt import entry_point, enter_prompt, back_from_conversation
+from .produce_content.enter_prompt import entry_point, enter_prompt, back_from_conversation as produce_content_back_from_conversation
 
 from .produce_image import request_name as produce_image_request_name
 from .produce_image.ai_answer import request_steps as produce_image_request_steps
@@ -28,7 +27,19 @@ from .produce_voice import request_name as produce_voice_request_name
 from .produce_voice.ai_answer import request_steps as produce_voice_request_steps
 from .produce_voice.on_callback import on_callback as produce_voice_callback
 
+from .show_profile import show_profile
+
+from .add_credit import request_name as add_credit_request_name
+from .add_credit.add_credit import request_steps as add_credit_request_steps
+from .add_credit.on_callback import on_callback as add_credit_callback
+from .add_credit.enter_token import (
+    entry_point as add_credit_entry_point,
+    enter_token,
+    back_from_conversation as add_credit_back_from_conversation,
+)
+
 from .guide import guide
+
 from raw_texts.raw_texts import *
 from src.infra.exceptions.exceptions import EntityNotFoundError
 
@@ -63,30 +74,18 @@ async def on_message(
     
     text = update.effective_message.text
     
-    if text == SHOW_PROFILE:
+    if text == CREATE_ARTICLE:
+        await produce_content_request_steps(update, context)
+    elif text == CREATE_IMAGE:
+        await produce_image_request_steps(update, context)
+    elif text == CREATE_VOICE:
+        await produce_voice_request_steps(update, context)
+    elif text == SHOW_PROFILE:
         await show_profile(update, context)
-    # elif text == ADD_CREDIT:
-    #     await add_credit(
-    #         message,
-    #         bot_client,
-    #     )
+    elif text == ADD_CREDIT:
+        await add_credit_request_steps(update, context)
     elif text == GUIDE:
         await guide(update, context)
-    elif text == CREATE_ARTICLE:
-        await produce_content_request_steps(
-            update,
-            context,
-        )
-    elif text == CREATE_IMAGE:
-        await produce_image_request_steps(
-            update,
-            context,
-        )
-    elif text == CREATE_VOICE:
-        await produce_voice_request_steps(
-            update,
-            context,
-        )
     elif text == BACK:
         await update.message.reply_text(
             text=RESTART,
@@ -122,7 +121,7 @@ def start_bot():
     
     enter_prompt_handler = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(callback=entry_point, pattern="conversation"),
+            CallbackQueryHandler(callback=entry_point, pattern="produce_content_conversation"),
         ],
         states={
             0: [
@@ -130,7 +129,21 @@ def start_bot():
             ],
         },
         fallbacks=[
-            CallbackQueryHandler(callback=back_from_conversation, pattern="back_from_conversation"),
+            CallbackQueryHandler(callback=produce_content_back_from_conversation, pattern="back_from_conversation"),
+        ],
+    )
+    
+    add_credit_handler = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(callback=add_credit_entry_point, pattern="add_credit_conversation"),
+        ],
+        states={
+            0: [
+                MessageHandler(filters=filters.TEXT, callback=enter_token),
+            ],
+        },
+        fallbacks=[
+            CallbackQueryHandler(callback=add_credit_back_from_conversation, pattern="back_from_conversation"),
         ],
     )
     
@@ -138,11 +151,13 @@ def start_bot():
         [
             CommandHandler("start", start),
             enter_prompt_handler,
+            add_credit_handler,
             MessageHandler(filters=None, callback=on_message),
             CallbackQueryHandler(callback=on_callback, pattern=request_pattern(close="id")),
             CallbackQueryHandler(callback=produce_content_callback, pattern=request_pattern(produce_content_request_name, **CallbackDataRequest.aliases)),
             CallbackQueryHandler(callback=produce_image_callback, pattern=request_pattern(produce_image_request_name, **CallbackDataRequest.aliases)),
             CallbackQueryHandler(callback=produce_voice_callback, pattern=request_pattern(produce_voice_request_name, **CallbackDataRequest.aliases)),
+            CallbackQueryHandler(callback=add_credit_callback, pattern=request_pattern(add_credit_request_name, **CallbackDataRequest.aliases)),
         ],
     )
     

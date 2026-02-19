@@ -12,7 +12,7 @@ from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKey
 from src.routes.depends.repo_depend import cache_repo_depend, user_repo_depend, token_settings_repo_depend
 from src.routes.depends.inline_keyboard_depend import inline_keyboard_depend
 from src.routes.depends.gpt_depend import gpt_client_depend
-from src.models.schemas.bot.request_model import RequestModel
+from src.models.schemas.bot.produce_content_request_model import ProduceContentRequestModel
 from src.usecases.bot.produce_content.steps.choose_prompt import ChoosePrompt
 from src.usecases.bot.produce_content.steps.choose_words_number import ChooseWordsNumber
 from src.usecases.bot.produce_content.steps.choose_tones import ChooseTones
@@ -39,9 +39,9 @@ async def request_steps(
     
     chat_id = update.effective_user.id
       
-    callback_data = callback_data or CallbackDataRequest(name=request_name, message_id=update.message.message_id)    
+    callback_data = callback_data or CallbackDataRequest(name=request_name, message_id=update.message.message_id)
     cache_usecase = ProduceContentCache(user_repo, cache_repo, prompts_titles, words_number, tones)
-    request: RequestModel = await cache_usecase.execute(chat_id, callback_data)
+    request: ProduceContentRequestModel = await cache_usecase.execute(chat_id, callback_data)
     
     if start_point:
         
@@ -86,8 +86,8 @@ async def request_steps(
 
     elif callback_data.step == RequestSummary.step:
 
-        produce_usecase = RequestSummary(user_repo, token_settings_repo, cache_repo, inline_keyboard)
-        text, keyboard = await produce_usecase.execute(chat_id, request, callback_data)
+        request_summary = RequestSummary(user_repo, token_settings_repo, cache_repo, inline_keyboard)
+        text, keyboard = await request_summary.execute(chat_id, request, callback_data)
 
         await update.effective_message.edit_text(
             text=text,

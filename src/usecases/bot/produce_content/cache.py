@@ -1,7 +1,7 @@
 from src.repo.interface.Icache import ICacheRepo
 from src.repo.interface.Iuser_repo import IUserRepo
 from src.models.schemas.bot.callback_request import CallbackDataRequest
-from src.models.schemas.bot.request_model import RequestModel
+from src.models.schemas.bot.produce_content_request_model import ProduceContentRequestModel
 from src.domain.schemas.user.user_model import UserModel
 from typing import ClassVar
 
@@ -27,7 +27,7 @@ class ProduceContentCache:
         self,
         chat_id: str,
         callback_data: CallbackDataRequest,
-    ) -> RequestModel:
+    ) -> ProduceContentRequestModel:
         
         user: UserModel = await self.user_repo.get_by_chat_id(chat_id)
         
@@ -35,9 +35,9 @@ class ProduceContentCache:
         cache = self.cache_repo.get(cache_id)
         
         if cache:
-            request: RequestModel = RequestModel.model_validate(cache)
+            request: ProduceContentRequestModel = ProduceContentRequestModel.model_validate(cache)
         else:
-            request: RequestModel = RequestModel()
+            request: ProduceContentRequestModel = ProduceContentRequestModel()
         
         if callback_data.origin == "p":
             request.prompts.clear()
@@ -50,7 +50,7 @@ class ProduceContentCache:
             else:
                 request.tones.append(self.tones[callback_data.index])
 
-        return RequestModel.model_validate(
+        return ProduceContentRequestModel.model_validate(
             self.cache_repo.save(
                 cache_id,
                 request.model_dump(mode="json"),

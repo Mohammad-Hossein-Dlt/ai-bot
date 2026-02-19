@@ -7,7 +7,7 @@ class CallbackDataRequest(BaseModel):
     page: int | None = Field(ge=0, lt=100, serialization_alias="p", default=0) # max_length = 2
     origin: str | None = Field(serialization_alias="o", default="") # max_length = 15
     index: int | None = Field(gt=-100, lt=100, serialization_alias="i", default=0) # max_length = 3
-    conversation: bool | None = Field(serialization_alias="c", default=False) # max_length = 1
+    # conversation: bool | None = Field(serialization_alias="c", default=False) # max_length = 1
     message_id: int = Field(ge=0, lt=100_000_000_000, serialization_alias="m") # max_length = 12
     
     page_size: ClassVar[int] = 5
@@ -17,7 +17,7 @@ class CallbackDataRequest(BaseModel):
         "p": "page",
         "o": "origin",
         "i": "index",
-        "c": "conversation",
+        # "c": "conversation",
         "m": "message_id",
     }
     
@@ -43,7 +43,7 @@ class CallbackDataRequest(BaseModel):
         page: int | None = None,
         origin: str | None = None,
         index: int | None = None,
-        conversation: bool | None = None,
+        # conversation: bool | None = None,
     ) -> str:
 
         to_update = {
@@ -54,15 +54,15 @@ class CallbackDataRequest(BaseModel):
             "message_id": self.message_id,
         }
         
-        if conversation:
-            to_update = {
-                "step": None,
-                "page": None,
-                "origin": None,
-                "index": None,
-                "conversation": conversation,
-                "message_id": self.message_id,
-            }
+        # if conversation:
+        #     to_update = {
+        #         "step": None,
+        #         "page": None,
+        #         "origin": None,
+        #         "index": None,
+        #         "conversation": conversation,
+        #         "message_id": self.message_id,
+        #     }
 
         copy = self.model_copy(update=to_update)
         pairs = copy.model_dump(
@@ -74,11 +74,11 @@ class CallbackDataRequest(BaseModel):
         
         to_encode = self.name
         
-        to_encode += "cnvtion" if conversation else ""
+        # to_encode += "cnvtion" if conversation else ""
         
         for key, value in pairs.items():
-            if key == "c":
-                value = "t" if conversation else "f"
+            # if key == "c":
+            #     value = "t" if conversation else "f"
             to_encode += f"{key}:{value}"
                 
         return to_encode.strip()

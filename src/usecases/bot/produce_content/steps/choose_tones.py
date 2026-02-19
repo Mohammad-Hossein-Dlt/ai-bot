@@ -1,6 +1,6 @@
 from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
 from src.models.schemas.bot.callback_request import CallbackDataRequest
-from src.models.schemas.bot.request_model import RequestModel
+from src.models.schemas.bot.produce_content_request_model import ProduceContentRequestModel
 from typing import ClassVar, Any
 from raw_texts.raw_texts import (
     BACK,
@@ -21,7 +21,7 @@ class ChooseTones:
     
     def execute(
         self,
-        request: RequestModel,
+        request: ProduceContentRequestModel,
         callback_data: CallbackDataRequest,
     ) -> type[Any]:
 

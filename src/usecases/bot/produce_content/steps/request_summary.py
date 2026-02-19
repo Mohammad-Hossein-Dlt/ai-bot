@@ -5,8 +5,9 @@ from src.domain.schemas.token_settings.token_settings_model import TokenSettings
 from src.domain.schemas.user.user_model import UserModel
 from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
 from src.models.schemas.bot.callback_request import CallbackDataRequest
-from src.models.schemas.bot.request_model import RequestModel
+from src.models.schemas.bot.produce_content_request_model import ProduceContentRequestModel
 from src.usecases.bot.save_conversation import SaveConversation
+from src.usecases.bot.delete_conversation import DeleteConversation
 from typing import ClassVar, Any
 from raw_texts.raw_texts import (
     LACK_OF_CREDIT,
@@ -33,11 +34,12 @@ class RequestSummary:
         self.inline_keyboard = inline_keyboard
         
         self.save_conversation_usecase = SaveConversation(user_repo, cache_repo)
+        self.delete_conversation_usecase = DeleteConversation(user_repo, cache_repo)
     
     async def execute(
         self,
         chat_id: str,
-        request: RequestModel,
+        request: ProduceContentRequestModel,
         callback_data: CallbackDataRequest,
     ) -> type[Any]:
         
@@ -71,7 +73,7 @@ class RequestSummary:
         if user.tokens >= token_settings.tokens_per_prompt:
             self.inline_keyboard.add_button(
                 "ارسال پرامت 📄",
-                "conversation",
+                "produce_content_conversation",
             )
 
         self.inline_keyboard.add_row(
@@ -79,6 +81,7 @@ class RequestSummary:
             {CLOSE_PANEL: f"close:{callback_data.message_id}"},
         )
         
+        await self.delete_conversation_usecase.execute(chat_id)
         await self.save_conversation_usecase.execute(chat_id, callback_data=callback_data)
         
         return text, self.inline_keyboard.create_markup()

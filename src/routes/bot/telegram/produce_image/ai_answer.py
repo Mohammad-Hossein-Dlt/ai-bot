@@ -12,7 +12,7 @@ from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKey
 from src.routes.depends.repo_depend import cache_repo_depend, user_repo_depend, token_settings_repo_depend
 from src.routes.depends.inline_keyboard_depend import inline_keyboard_depend
 from src.routes.depends.gpt_depend import gpt_client_depend
-from src.models.schemas.bot.request_model import RequestModel
+from src.models.schemas.bot.produce_content_request_model import ProduceContentRequestModel
 
 from openai import OpenAI
 

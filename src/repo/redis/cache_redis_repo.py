@@ -48,6 +48,18 @@ class RedisCacheRepo(ICacheRepo):
         except:
             return None
         
+    def delete(
+        self,
+        chache_id: str,
+    ) -> dict | None:
+        
+        try:
+
+            self.redis_client.unlink(chache_id)
+            return True
+        except:
+            return False
+        
 # from redis import Redis
 # from src.repo.interface.Icache import ICacheRepo
 # from pydantic import BaseModel

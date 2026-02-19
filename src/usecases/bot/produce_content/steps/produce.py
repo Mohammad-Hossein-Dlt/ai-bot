@@ -4,7 +4,7 @@ from src.repo.interface.Icache import ICacheRepo
 from src.domain.schemas.token_settings.token_settings_model import TokenSettingsModel
 from src.domain.schemas.user.user_model import UserModel
 from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
-from src.models.schemas.bot.request_model import RequestModel
+from src.models.schemas.bot.produce_content_request_model import ProduceContentRequestModel
 
 from src.usecases.bot.get_conversation import GetConversation
 
@@ -46,7 +46,7 @@ class Produce:
     async def execute(
         self,
         chat_id: str,
-        request: RequestModel,
+        request: ProduceContentRequestModel,
     ) -> AsyncGenerator[tuple[str, Any | None, BytesIO | None], None]:
         
         token_settings: TokenSettingsModel = await self.token_settings_repo.get()

@@ -18,6 +18,13 @@ class ICacheRepo(ABC):
         
         raise NotImplementedError
     
+    @abstractmethod
+    def delete(
+        chache_id: str,
+    ) -> bool:
+        
+        raise NotImplementedError
+    
 # from abc import ABC, abstractmethod
 # from pydantic import BaseModel
 # from typing import TypeVar, Generic
