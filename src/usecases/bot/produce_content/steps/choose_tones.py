@@ -1,4 +1,4 @@
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
+from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import Button, IInlineKeyboard
 from src.models.schemas.bot.callback_request import CallbackDataRequest
 from src.models.schemas.bot.produce_content_request_model import ProduceContentRequestModel
 from typing import ClassVar, Any
@@ -45,13 +45,33 @@ class ChooseTones:
                 to_callback = callback_data.encode(step=self.step, page=callback_data.page, origin="t", index=-index)
             
             self.inline_keyboard.add_button(
-                value,
-                to_callback,
+                Button(
+                    text=value,
+                    callback_data=to_callback,
+                )
             )
         
-        previous_page = {"صفحه قبلی ⬅️": callback_data.encode(step=self.step, page=callback_data.page-1)} if callback_data.page is not None else None
-        next_page = {"➡️ صفحه بعدی": callback_data.encode(step=self.step, page=callback_data.page+1)} if callback_data.page is not None else None
-        produce = {"ادامه ⚡️": callback_data.encode(step=self.step+1)}
+        previous_page = Button(
+            text="صفحه قبلی ⬅️",
+            callback_data=callback_data.encode(step=self.step, page=callback_data.page-1) if callback_data.page is not None else None,
+        )
+        next_page = Button(
+            text="➡️ صفحه بعدی",
+            callback_data=callback_data.encode(step=self.step, page=callback_data.page+1) if callback_data.page is not None else None,
+        )
+        produce = Button(
+            text="ادامه ⚡️",
+            callback_data=callback_data.encode(step=self.step+1),
+        )
+        
+        back = Button(
+            text=BACK,
+            callback_data=callback_data.encode(step=self.step-1, page=0),
+        )       
+        close = Button(
+            text=CLOSE_PANEL,
+            callback_data=f"close:{callback_data.message_id}",
+        )
         
         if callback_data.start > 0 and callback_data.end < len(self.tones):
             self.inline_keyboard.add_row(previous_page, next_page)
@@ -63,9 +83,6 @@ class ChooseTones:
         if len(selected_tones) != 0:
             self.inline_keyboard.add_column(produce)
             
-        self.inline_keyboard.add_row(
-            {BACK: callback_data.encode(step=self.step-1, page=0)},
-            {CLOSE_PANEL: f"close:{callback_data.message_id}"},
-        )
+        self.inline_keyboard.add_row(back, close)
         
         return text, self.inline_keyboard.create_markup()

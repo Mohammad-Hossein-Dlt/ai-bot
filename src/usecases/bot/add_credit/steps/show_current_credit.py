@@ -1,7 +1,7 @@
 from src.repo.interface.Iuser_repo import IUserRepo
 from src.repo.interface.Icache import ICacheRepo
 from src.domain.schemas.user.user_model import UserModel
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
+from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import Button, IInlineKeyboard
 from src.models.schemas.bot.callback_request import CallbackDataRequest
 from src.usecases.bot.save_conversation import SaveConversation
 from src.usecases.bot.delete_conversation import DeleteConversation
@@ -41,19 +41,22 @@ class ShowCurrentCredit:
         wallet_credit = f"شناسه کاربری شما: user_id"
         wallet_credit = wallet_credit.replace("user_id", str(chat_id))
         
-        self.inline_keyboard.add_row(
-            {f"{english_to_persian(number_formatter(int(user.tokens)))} عدد": "None2"},
-            {"💎 توکن‌های‌شما": "None1"},
+        close = Button(
+            text=CLOSE_PANEL,
+            callback_data=f"close:{callback_data.message_id}",
         )
         
         self.inline_keyboard.add_row(
-            {"خرید توکن 💳": "add_credit_conversation"},
+            Button(text=f"{english_to_persian(number_formatter(int(user.tokens)))} عدد", callback_data="None2"),
+            Button(text="💎 توکن‌های‌شما", callback_data="None1"),
         )
         
         self.inline_keyboard.add_row(
-            {CLOSE_PANEL: f"close:{callback_data.message_id}"},
+            Button(text="خرید توکن 💳", callback_data="ac_cnvstn"),
         )
         
+        self.inline_keyboard.add_row(close)        
+
         await self.delete_conversation_usecase.execute(chat_id)
         await self.save_conversation_usecase.execute(chat_id, callback_data=callback_data)
         

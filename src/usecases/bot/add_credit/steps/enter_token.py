@@ -1,6 +1,6 @@
 from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
 from src.domain.schemas.token_settings.token_settings_model import TokenSettingsModel
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
+from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import Button, IInlineKeyboard
 from src.models.schemas.bot.callback_request import CallbackDataRequest
 from typing import ClassVar
 from raw_texts.raw_texts import (
@@ -11,7 +11,7 @@ from src.infra.utils.number_converter import english_to_persian, persian_to_engl
 
 class EnterToken:
     
-    # step: ClassVar[int] = 1
+    # step: ClassVar[int] = 2
     
     def __init__(
         self,
@@ -37,9 +37,15 @@ class EnterToken:
         token_unit = 'قیمت هر واحد توکن unit ريال است'
         token_unit = token_unit.replace("unit", english_to_persian(number_formatter(token_settings.unit)))
         
-        self.inline_keyboard.add_row(
-            {BACK: "back_from_conversation"},
-            {CLOSE_PANEL: f"close:{callback_data.message_id}"},
+        back = Button(
+            text=BACK,
+            callback_data="back_from_cnvstn",
+        )       
+        close = Button(
+            text=CLOSE_PANEL,
+            callback_data=f"close:{callback_data.message_id}",
         )
+        
+        self.inline_keyboard.add_row(back, close)
         
         return f'{enter_tokens}\n{tokens_range}\n{token_unit}', self.inline_keyboard.create_markup()

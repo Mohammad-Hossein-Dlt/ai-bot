@@ -3,7 +3,7 @@ from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
 from src.repo.interface.Icache import ICacheRepo
 from src.domain.schemas.token_settings.token_settings_model import TokenSettingsModel
 from src.domain.schemas.user.user_model import UserModel
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
+from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import Button, IInlineKeyboard
 from src.models.schemas.bot.callback_request import CallbackDataRequest
 from src.models.schemas.bot.produce_content_request_model import ProduceContentRequestModel
 from src.usecases.bot.save_conversation import SaveConversation
@@ -59,27 +59,32 @@ class RequestSummary:
         )
         
         text = f"{text.strip()}\n{wallet_validation}"
+        
+        back = Button(
+            text=BACK,
+            callback_data=callback_data.encode(step=self.step-1, page=0),
+        )       
+        close = Button(
+            text=CLOSE_PANEL,
+            callback_data=f"close:{callback_data.message_id}",
+        )
 
         self.inline_keyboard.add_row(
-            {f"{english_to_persian(number_formatter(token_settings.tokens_per_prompt))} توکن": "None1"},
-            {"💵 هزینه تولید:": "None2"},
+            Button(text=f"{english_to_persian(number_formatter(token_settings.tokens_per_prompt))} توکن", callback_data="None1"),
+            Button(text="💵 هزینه تولید:", callback_data="None2"),
         )
         
         self.inline_keyboard.add_row(
-            {f"{english_to_persian(number_formatter(int(user.tokens)))} توکن": "None3"},
-            {"💎 اعتبار شما:": "None4"},
+            Button(text=f"{english_to_persian(number_formatter(int(user.tokens)))} توکن", callback_data="None3"),
+            Button(text="💎 اعتبار شما:", callback_data="None4"),
         )        
 
         if user.tokens >= token_settings.tokens_per_prompt:
             self.inline_keyboard.add_button(
-                "ارسال پرامت 📄",
-                "produce_content_conversation",
+                Button(text="ارسال پرامت 📄", callback_data="pc_cnvstn"),
             )
 
-        self.inline_keyboard.add_row(
-            {BACK: callback_data.encode(step=self.step-1, page=0)},
-            {CLOSE_PANEL: f"close:{callback_data.message_id}"},
-        )
+        self.inline_keyboard.add_row(back, close)
         
         await self.delete_conversation_usecase.execute(chat_id)
         await self.save_conversation_usecase.execute(chat_id, callback_data=callback_data)

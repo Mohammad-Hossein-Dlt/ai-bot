@@ -121,7 +121,7 @@ def start_bot():
     
     enter_prompt_handler = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(callback=entry_point, pattern="produce_content_conversation"),
+            CallbackQueryHandler(callback=entry_point, pattern="pc_cnvstn"),
         ],
         states={
             0: [
@@ -129,13 +129,13 @@ def start_bot():
             ],
         },
         fallbacks=[
-            CallbackQueryHandler(callback=produce_content_back_from_conversation, pattern="back_from_conversation"),
+            CallbackQueryHandler(callback=produce_content_back_from_conversation, pattern="back_from_cnvstn"),
         ],
     )
     
     add_credit_handler = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(callback=add_credit_entry_point, pattern="add_credit_conversation"),
+            CallbackQueryHandler(callback=add_credit_entry_point, pattern="ac_cnvstn"),
         ],
         states={
             0: [
@@ -143,7 +143,7 @@ def start_bot():
             ],
         },
         fallbacks=[
-            CallbackQueryHandler(callback=add_credit_back_from_conversation, pattern="back_from_conversation"),
+            CallbackQueryHandler(callback=add_credit_back_from_conversation, pattern="back_from_cnvstn"),
         ],
     )
     

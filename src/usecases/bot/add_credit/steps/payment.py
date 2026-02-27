@@ -2,7 +2,7 @@ from src.repo.interface.Iuser_repo import IUserRepo
 from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
 from src.repo.interface.Icache import ICacheRepo
 from src.domain.schemas.token_settings.token_settings_model import TokenSettingsModel
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
+from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import Button, IInlineKeyboard
 from src.models.schemas.bot.callback_request import CallbackDataRequest
 from src.usecases.bot.get_conversation import GetConversation
 
@@ -63,33 +63,39 @@ class Payment:
 
         payment_id = str(uuid.uuid4())
 
-        payment_url = f'{''}/api/v1/payment/request/?user_id={chat_id}&payment_id={payment_id}&amount={amount}&tokens={tokens}'
+        payment_url = f'{'http://localhost'}/api/v1/payment/request/?user_id={chat_id}&payment_id={payment_id}&amount={amount}&tokens={tokens}'
 
         payment_text = 'لینک پرداخت برای خرید تعداد توکن مورد نظر ساخته شد. از طریق لینک زیر پرداخت کنید.'
-        
+
+        back = Button(
+            text=BACK,
+            callback_data=callback_data.encode(step=self.step-1, page=0),
+        )       
+        close = Button(
+            text=CLOSE_PANEL,
+            callback_data=f"close:{callback_data.message_id}",
+        )        
+
         self.inline_keyboard.add_row(
-            {f"{english_to_persian(number_formatter(token_settings.unit))} ريال": "None1"},
-            {"💵 قیمت هر توکن:": "None2"},
+            Button(text=f"{english_to_persian(number_formatter(token_settings.unit))} ريال", callback_data="None1"),
+            Button(text="💵 قیمت هر توکن:", callback_data="None2"),
         )
         
         self.inline_keyboard.add_row(
-            {f"{english_to_persian(number_formatter(tokens))} عدد": "None3"},
-            {"💎 توکن درخواستی:": "None4"},
+            Button(f"{english_to_persian(number_formatter(tokens))} عدد", callback_data="None3"),
+            Button(text="💎 توکن درخواستی:", callback_data="None4"),
         )
         
         self.inline_keyboard.add_row(
-            {f"{english_to_persian(number_formatter(amount))} ريال": "None5"},
-            {"💰 قیمت:": "None6"},
+            Button(text=f"{english_to_persian(number_formatter(amount))} ريال", callback_data="None5"),
+            Button("💰 قیمت:", callback_data="None6"),
         )
                 
         self.inline_keyboard.add_row(
-            {'✅ پرداخت': payment_url},
-            {'🎁 اعمال کد تخفیف': callback_data.encode(step=self.step+1)},
-        )
-
-        self.inline_keyboard.add_row(
-            {BACK: callback_data.encode(step=self.step-1, page=0)},
-            {CLOSE_PANEL: f"close:{callback_data.message_id}"},
+            Button(text='✅ پرداخت', callback_data=payment_url, is_link=True),
+            Button(text='🎁 اعمال کد تخفیف', callback_data=callback_data.encode(step=self.step+1)),
         )
         
+        self.inline_keyboard.add_row(back, close)
+
         return payment_text, self.inline_keyboard.create_markup()

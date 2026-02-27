@@ -1,4 +1,4 @@
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
+from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import Button, IInlineKeyboard
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 class TelegramInlineKeyboard(IInlineKeyboard):
@@ -10,42 +10,41 @@ class TelegramInlineKeyboard(IInlineKeyboard):
 
     def create_button(
         self,
-        text: str,
-        callback_data: str,
+        button_data: Button,
     ):        
-        return InlineKeyboardButton(text, callback_data=callback_data)
+        if button_data.is_link:
+            return InlineKeyboardButton(button_data.text, url=button_data.callback_data)
+        
+        return InlineKeyboardButton(button_data.text, callback_data=button_data.callback_data)
         
     def add_button(
         self,
-        text: str,
-        callback_data: str,
+        button_data: Button,
     ):
         self.buttons.append(
             [
-                self.create_button(text, callback_data),
+                self.create_button(button_data),
             ],
         )
 
     def add_column(
         self,
-        *args: dict[str, str] | None,
+        *args: Button | None,
     ):
         for var in args:
             if var:
-                for key, value in var.items():
-                    self.add_button(key, value)
+                self.add_button(var)
                     
     def add_row(
         self,
-        *args: dict[str, str] | None,
+        *args: Button | None,
     ):
         row = []
         for var in args:
             if var:
-                for key, value in var.items():
-                    row.append(
-                        self.create_button(key, value),
-                    )
+                row.append(
+                    self.create_button(var),
+                )
         
         if row:
             self.buttons.append(row)
