@@ -12,11 +12,20 @@ build:
   image: docker:24.0.5
   services:
     - name: docker:24.0.5-dind
-      # alias: docker
+      alias: docker
   only:
     - main
 
   before_script:
+    - |
+      for i in $(seq 1 30); do
+        if docker info >/dev/null 2>&1; then
+          echo "Docker daemon is ready!"
+          break
+        fi
+        echo "Waiting for Docker daemon..."
+        sleep 1
+      done
     # Init kubectl
     # - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     # - chmod +x ./kubectl
