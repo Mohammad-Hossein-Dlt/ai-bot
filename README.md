@@ -69,18 +69,11 @@ infra/
 │   ├── mongodb/
 │   │   └── <files or directories...>
 │   │
-│   └── sqlite/
+│   └── postgresql/
 │       └── <files or directories...>
 │
 ├── exceptions/
 │   └── <files...>
-│
-├── external_api/
-│   ├── interface/
-│   │   └── <files...>
-│   │
-│   └── service/
-│       └── <files...>
 │
 ├── fastapi_config/
 │   └── <files...>
@@ -153,7 +146,7 @@ repo/
     └── <files...>
 ```
 
-- **Storage name** — for example: `postgresql`, or `mongodb`.
+- **Storage name** — for example: `postgresql`, `mongodb` or `redis`.
 
 ```
 repo/
@@ -163,7 +156,10 @@ repo/
 ├── postgresql/
 │   └── <files...>
 │
-└── mongodb/
+├── mongodb/
+│   └── <files...>
+│
+└── redis/
     └── <files...>
 ```
 
