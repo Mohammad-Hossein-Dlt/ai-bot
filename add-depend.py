@@ -133,8 +133,24 @@ def ensure_venv_available(
         )
         ensure_venv_available(dir)
     
-def check_requirements():
+def ensure_pyproject(
+    dir: Path,
+) -> None:
+
+    run_cmd(
+        cmd=[
+            "uv",
+            "init",
+            "--bare",  
+        ],
+        cwd=dir,
+    )
+    
+def check_requirements(
+    dir: Path,
+):
     installed = importlib.util.find_spec("pipdeptree") is not None
+    ensure_pyproject(dir)
     if not installed:
         print("pipdeptree is not installed, Installing pipdeptree...")
         run_cmd(
@@ -142,8 +158,11 @@ def check_requirements():
                 "uv",
                 "add",
                 "pipdeptree",
+                # "--index",
+                # "https://mirror-pypi.runflare.com/simple",
                 "--active",
             ],
+            cwd=dir,
         )
     
 def get_top_packages(dir: Path):
@@ -186,6 +205,8 @@ def process(
         
     pyproject = dir / "pyproject.toml"
     requirements = dir / "requirements.txt"
+    
+    ensure_pyproject(dir)
         
     requirements.write_text(
         get_top_packages(dir),
@@ -244,7 +265,7 @@ def main() -> None:
 
     ensure_uv_available()
     ensure_venv_available(Path.cwd())
-    check_requirements()
+    check_requirements(Path.cwd())
 
     paths_list = list(discover_dirs(Path.cwd()))
 
@@ -262,7 +283,6 @@ def main() -> None:
             # raise SystemExit(f"Processing Error for {path.name}:\n{e}\n") from e
     
     remove_uv_lock(Path.cwd())       
-
 
 if __name__ == "__main__":
     main()

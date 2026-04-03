@@ -3,7 +3,8 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup
 from raw_texts.raw_texts import (
     CREATE_ARTICLE,
     CREATE_IMAGE,
-    CREATE_VOICE,
+    TEXT_TO_AUDIO,
+    AUDIO_TO_TEXT,
     SHOW_PROFILE,
     ADD_CREDIT,
     GUIDE,
@@ -16,7 +17,8 @@ home_buttons = [
     ],
     [
         KeyboardButton(text=CREATE_IMAGE),
-        KeyboardButton(text=CREATE_VOICE),
+        KeyboardButton(text=TEXT_TO_AUDIO),
+        KeyboardButton(text=AUDIO_TO_TEXT),
     ],
     [
         KeyboardButton(text=SHOW_PROFILE),

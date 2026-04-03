@@ -39,7 +39,7 @@ async def show_profile(
         [
             InlineKeyboardButton(
                 CLOSE_PANEL,
-                callback_data=json.dumps('close')
+                callback_data=f"close:{update.message.message_id}"
             ),
         ],
     ]

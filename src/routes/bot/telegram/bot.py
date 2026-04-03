@@ -17,15 +17,38 @@ from .general_buttons import home_markup
 from .produce_content import request_name as produce_content_request_name
 from .produce_content.ai_answer import request_steps as produce_content_request_steps
 from .produce_content.on_callback import on_callback as produce_content_callback
-from .produce_content.enter_prompt import entry_point, enter_prompt, back_from_conversation as produce_content_back_from_conversation
+from .produce_content.enter_prompt import (
+    entry_point as produce_content_entry_point,
+    enter_prompt as produce_content_enter_prompt,
+    back_from_conversation as produce_content_back_from_conversation
+)
 
-from .produce_image import request_name as produce_image_request_name
-from .produce_image.ai_answer import request_steps as produce_image_request_steps
-from .produce_image.on_callback import on_callback as produce_image_callback
+from .text_to_image import request_name as text_to_image_request_name
+from .text_to_image.ai_answer import request_steps as text_to_image_request_steps
+from .text_to_image.on_callback import on_callback as text_to_image_callback
+from .text_to_image.enter_prompt import (
+    entry_point as text_to_image_entry_point,
+    enter_prompt as text_to_image_enter_prompt,
+    back_from_conversation as text_to_image_back_from_conversation
+)
 
-from .produce_voice import request_name as produce_voice_request_name
-from .produce_voice.ai_answer import request_steps as produce_voice_request_steps
-from .produce_voice.on_callback import on_callback as produce_voice_callback
+from .text_to_audio import request_name as text_to_audio_request_name
+from .text_to_audio.ai_answer import request_steps as text_to_audio_request_steps
+from .text_to_audio.on_callback import on_callback as text_to_audio_callback
+from .text_to_audio.enter_prompt import (
+    entry_point as text_to_audio_entry_point,
+    enter_prompt as text_to_audio_enter_prompt,
+    back_from_conversation as text_to_audio_back_from_conversation
+)
+
+from .audio_to_text import request_name as audio_to_text_request_name
+from .audio_to_text.ai_answer import request_steps as audio_to_text_request_steps
+from .audio_to_text.on_callback import on_callback as audio_to_text_callback
+from .audio_to_text.enter_prompt import (
+    entry_point as audio_to_text_entry_point,
+    enter_prompt as audio_to_text_enter_prompt,
+    back_from_conversation as audio_to_text_back_from_conversation
+)
 
 from .show_profile import show_profile
 
@@ -77,9 +100,11 @@ async def on_message(
     if text == CREATE_ARTICLE:
         await produce_content_request_steps(update, context)
     elif text == CREATE_IMAGE:
-        await produce_image_request_steps(update, context)
-    elif text == CREATE_VOICE:
-        await produce_voice_request_steps(update, context)
+        await text_to_image_request_steps(update, context)
+    elif text == TEXT_TO_AUDIO:
+        await text_to_audio_request_steps(update, context)
+    elif text == AUDIO_TO_TEXT:
+        await audio_to_text_request_steps(update, context)
     elif text == SHOW_PROFILE:
         await show_profile(update, context)
     elif text == ADD_CREDIT:
@@ -113,23 +138,71 @@ async def on_callback(
             message_id=message_id,
         )
     except: ...
+    
+    return ConversationHandler.END
 
 def start_bot():
     # application = Application.builder().token(settings.BOT_TOKEN).post_init(on_startup).build()
-    application = Application.builder().token(settings.BOT_TOKEN).post_init(on_startup).base_url("https://tapi.bale.ai/bot").build()
+    application = Application.builder().token(settings.BOT_TOKEN).post_init(on_startup).base_url("https://tapi.bale.ai/bot").base_file_url("https://tapi.bale.ai/file/bot").build()
     # application = Application.builder().token(BOT_TOKEN).base_url("https://botapi.rubika.ir/v3/").build()
     
-    enter_prompt_handler = ConversationHandler(
+    produce_content_enter_prompt_handler = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(callback=entry_point, pattern="pc_cnvstn"),
+            CallbackQueryHandler(callback=produce_content_entry_point, pattern="pc_cnvstn"),
         ],
         states={
             0: [
-                MessageHandler(filters=filters.TEXT, callback=enter_prompt),
+                MessageHandler(filters=filters.TEXT, callback=produce_content_enter_prompt),
             ],
         },
         fallbacks=[
             CallbackQueryHandler(callback=produce_content_back_from_conversation, pattern="back_from_cnvstn"),
+            CallbackQueryHandler(callback=on_callback, pattern=request_pattern(close="id")),
+        ],
+    )
+    
+    text_to_image_enter_prompt_handler = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(callback=text_to_image_entry_point, pattern="pi_cnvstn"),
+        ],
+        states={
+            0: [
+                MessageHandler(filters=filters.TEXT, callback=text_to_image_enter_prompt),
+            ],
+        },
+        fallbacks=[
+            CallbackQueryHandler(callback=text_to_image_back_from_conversation, pattern="back_from_cnvstn"),
+            CallbackQueryHandler(callback=on_callback, pattern=request_pattern(close="id")),
+        ],
+    )
+        
+    text_to_audio_enter_prompt_handler = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(callback=text_to_audio_entry_point, pattern="pv_cnvstn"),
+        ],
+        states={
+            0: [
+                MessageHandler(filters=filters.TEXT, callback=text_to_audio_enter_prompt),
+            ],
+        },
+        fallbacks=[
+            CallbackQueryHandler(callback=text_to_audio_back_from_conversation, pattern="back_from_cnvstn"),
+            CallbackQueryHandler(callback=on_callback, pattern=request_pattern(close="id")),
+        ],
+    )
+    
+    audio_to_text_enter_prompt_handler = ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(callback=audio_to_text_entry_point, pattern="vt_cnvstn"),
+        ],
+        states={
+            0: [
+                MessageHandler(filters=filters.Document.AUDIO, callback=audio_to_text_enter_prompt),
+            ],
+        },
+        fallbacks=[
+            CallbackQueryHandler(callback=audio_to_text_back_from_conversation, pattern="back_from_cnvstn"),
+            CallbackQueryHandler(callback=on_callback, pattern=request_pattern(close="id")),
         ],
     )
     
@@ -144,19 +217,24 @@ def start_bot():
         },
         fallbacks=[
             CallbackQueryHandler(callback=add_credit_back_from_conversation, pattern="back_from_cnvstn"),
+            CallbackQueryHandler(callback=on_callback, pattern=request_pattern(close="id")),
         ],
     )
     
     application.add_handlers(
         [
             CommandHandler("start", start),
-            enter_prompt_handler,
+            produce_content_enter_prompt_handler,
+            text_to_image_enter_prompt_handler,
+            text_to_audio_enter_prompt_handler,
+            audio_to_text_enter_prompt_handler,
             add_credit_handler,
             MessageHandler(filters=None, callback=on_message),
             CallbackQueryHandler(callback=on_callback, pattern=request_pattern(close="id")),
             CallbackQueryHandler(callback=produce_content_callback, pattern=request_pattern(produce_content_request_name, **CallbackDataRequest.aliases)),
-            CallbackQueryHandler(callback=produce_image_callback, pattern=request_pattern(produce_image_request_name, **CallbackDataRequest.aliases)),
-            CallbackQueryHandler(callback=produce_voice_callback, pattern=request_pattern(produce_voice_request_name, **CallbackDataRequest.aliases)),
+            CallbackQueryHandler(callback=text_to_image_callback, pattern=request_pattern(text_to_image_request_name, **CallbackDataRequest.aliases)),
+            CallbackQueryHandler(callback=text_to_audio_callback, pattern=request_pattern(text_to_audio_request_name, **CallbackDataRequest.aliases)),
+            CallbackQueryHandler(callback=audio_to_text_callback, pattern=request_pattern(audio_to_text_request_name, **CallbackDataRequest.aliases)),
             CallbackQueryHandler(callback=add_credit_callback, pattern=request_pattern(add_credit_request_name, **CallbackDataRequest.aliases)),
         ],
     )
