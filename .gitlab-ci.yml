@@ -1,27 +1,42 @@
-image: docker:24.0.5
-services:
-  - docker:24.0.5-dind
-
 stages:
-  - build-and-deploy
+  - build
+  - deploy
 
-variables:
-  DOCKER_TLS_CERTDIR: "/certs"
+# variables:
+#   DOCKER_TLS_CERTDIR: "/certs"
 
-build-and-deploy:
-  stage: build-and-deploy
+build:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
   only:
     - main
+
   before_script:
     # Init kubectl
-    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    - chmod +x ./kubectl
-    - mv ./kubectl /usr/local/bin/kubectl
-      # Login to registry
+    # - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    # - chmod +x ./kubectl
+    # - mv ./kubectl /usr/local/bin/kubectl
+    # Login to registry
     - echo "$REGISTRY_PASSWORD" | docker login $REGISTRY -u $REGISTRY_USERNAME --password-stdin
     # Init Kubeconfig
-    - mkdir -p $HOME/.kube
-    - echo "$KUBE_CONFIG" > $HOME/.kube/config
+    # - mkdir -p $HOME/.kube
+    # - echo "$KUBE_CONFIG" > $HOME/.kube/config
+
+  script:
+    # Build and push services
+    - |
+      for service in api bot; do
+        docker build -t $REGISTRY/$service:latest ./deploy/${service}
+        docker push $REGISTRY/$service:latest
+      done
+
+deploy:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  only:
+    - main
 
   script:
     # Create .env file
@@ -54,13 +69,6 @@ build-and-deploy:
 
     # Deploy databases
     - kubectl apply -f k8s/databases/
-
-    # Build and push services
-    - |
-      for service in admin_api bot_api; do
-        docker build -t $REGISTRY/$service:latest ./${service}_service
-        docker push $REGISTRY/$service:latest
-      done
 
     # Deploy
     - kubectl apply -f k8s/project-services/
