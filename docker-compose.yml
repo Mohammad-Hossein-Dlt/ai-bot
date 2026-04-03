@@ -1,32 +1,32 @@
 services:
   # Project services
-  api-service:
-    working_dir: /app
-    build:
-      context: .
-      dockerfile: deploy/api/Dockerfile
-    container_name: api_service
-    restart: always
-    env_file:
-      - .env
-    depends_on:
-      - mongodb-service
-    ports:
-      - 80:80
+  # api-service:
+  #   working_dir: /app
+  #   build:
+  #     context: .
+  #     dockerfile: deploy/api/Dockerfile
+  #   container_name: api_service
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - mongodb-service
+  #   ports:
+  #     - 80:80
 
-  bot-service:
-    working_dir: /app
-    build:
-      context: .
-      dockerfile: deploy/bot/Dockerfile
-    container_name: bot_service
-    restart: always
-    env_file:
-      - .env
-    depends_on:
-      - postgres-service
+  # bot-service:
+  #   working_dir: /app
+  #   build:
+  #     context: .
+  #     dockerfile: deploy/bot/Dockerfile
+  #   container_name: bot_service
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - postgres-service
 
-  # Mongo-db
+  # Mongodb
   mongodb-service:
     image: mongo:latest
     container_name: db_service
@@ -38,21 +38,10 @@ services:
     ports:
       - 27017:27017
 
-  # Postgresql
-  # postgres-service:
-  #   image: postgres
-  #   container_name: postgres-db
-  #   restart: always
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - 54032:5432
-
-  redis:
+  # Cache db
+  redis-service:
     image: redis
-    container_name: redis_server
+    container_name: cache_server
     restart: always
     ports:
       - 6379:6379
@@ -71,10 +60,9 @@ services:
     volumes:
       - redisinsight_data:/data
     depends_on:
-      - redis
+      - redis-service
 
 volumes:
   mongo_data:
   redis_data:
   redisinsight_data:
-  # pgdata:

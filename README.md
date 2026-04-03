@@ -11,13 +11,15 @@ GPT_TOKEN=...
 
 ZARINPAL_MERCHANT_ID=75218ab1-d6a0-4548-bd36-f819e26c306c
 
+DB_STACK=mongo_db
+
 MONGO_HOST=localhost # mongodb-service, localhost
 MONGO_PORT=27017
 MONGO_INITDB_ROOT_USERNAME=root
 MONGO_INITDB_ROOT_PASSWORD=rootpassword
 MONGO_INITDB_DATABASE=db
 
-REDIS_HOST=localhost
+REDIS_HOST=localhost # redis-service, localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=redispassword
 
