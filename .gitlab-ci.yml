@@ -7,9 +7,9 @@ variables:
 
 build:
   stage: build
-  image: docker:24.0.5
+  image: docker:latest
   services:
-    - name: docker:24.0.5-dind
+    - name: docker:latest
       alias: docker
   only:
     - main
