@@ -9,7 +9,8 @@ build:
   stage: build
   image: docker:24.0.5
   services:
-    - docker:24.0.5-dind
+    - name: docker:24.0.5-dind
+      alias: docker
   only:
     - main
 
