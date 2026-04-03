@@ -7,7 +7,7 @@ variables:
 
 build:
   stage: build
-  image: docker:latest
+  # image: docker:latest
   # services:
   #   - name: docker:latest
   #     alias: docker
