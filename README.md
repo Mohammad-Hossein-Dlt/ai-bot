@@ -1,15 +1,15 @@
 `.env` file parameters, put it next to the services
 
 ```
-DOMAIN_URL=https://avida-ai.com
+DOMAIN_URL=...
 
-PLATFORM=Api # Api | Telegram_bot, Bale_bot
+PLATFORM=... # Api | Telegram_bot, Bale_bot
 BOT_TOKEN=...
 
-GPT_BASE_URL=https://api.gapgpt.app/v1
+GPT_BASE_URL=...
 GPT_TOKEN=...
 
-ZARINPAL_MERCHANT_ID=75218ab1-d6a0-4548-bd36-f819e26c306c
+ZARINPAL_MERCHANT_ID=...
 
 DB_STACK=mongo_db
 
