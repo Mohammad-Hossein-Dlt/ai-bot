@@ -3,6 +3,7 @@ stages:
   - deploy
 
 variables:
+  DOCKER_HOST: "docker.arvancloud.ir"
   DOCKER_TLS_CERTDIR: ""
 
 build:
