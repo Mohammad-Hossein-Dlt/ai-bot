@@ -3,8 +3,7 @@ stages:
   - deploy
 
 variables:
-  DOCKER_HOST: "tcp://docker.arvancloud.ir:2375"
-  DOCKER_TLS_CERTDIR: ""
+  DOCKER_TLS_CERTDIR: "./certs"
 
 build:
   stage: build
