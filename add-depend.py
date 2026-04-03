@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Iterable
 import json
 
-
 # Python 3.11+ has tomllib in stdlib. For 3.10- fallback to 'tomli' if installed.
 try:
     import tomllib  # type: ignore[attr-defined]
