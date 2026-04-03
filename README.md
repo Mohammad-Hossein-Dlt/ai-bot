@@ -3,7 +3,7 @@
 ```
 DOMAIN_URL=https://avida-ai.com
 
-PLATFORM=Bale_bot # Api | Telegram_bot, Bale_bot, Rubika_bot
+PLATFORM=Api # Api | Telegram_bot, Bale_bot
 BOT_TOKEN=...
 
 GPT_BASE_URL=https://api.gapgpt.app/v1
