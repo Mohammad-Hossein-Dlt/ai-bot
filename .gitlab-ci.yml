@@ -1,0 +1,67 @@
+image: docker:24.0.5
+services:
+  - docker:24.0.5-dind
+
+stages:
+  - build-and-deploy
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+
+build-and-deploy:
+  stage: build-and-deploy
+  only:
+    - main
+  before_script:
+    # Init kubectl
+    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/local/bin/kubectl
+      # Login to registry
+    - echo "$REGISTRY_PASSWORD" | docker login $REGISTRY -u $REGISTRY_USERNAME --password-stdin
+    # Init Kubeconfig
+    - mkdir -p $HOME/.kube
+    - echo "$KUBE_CONFIG" > $HOME/.kube/config
+
+  script:
+    # Create .env file
+    - |
+      cat <<EOF > .env
+      DOMAIN_URL=$DOMAIN_URL
+      PLATFORM=$PLATFORM
+      BOT_TOKEN=$BOT_TOKEN
+      GPT_BASE_URL=$GPT_BASE_URL
+      GPT_TOKEN=$GPT_TOKEN
+      ZARINPAL_MERCHANT_ID=$ZARINPAL_MERCHANT_ID
+      MONGO_HOST=$MONGO_HOST
+      MONGO_PORT=$MONGO_PORT
+      MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD
+      MONGO_INITDB_DATABASE=$MONGO_INITDB_DATABASE
+      REDIS_HOST=$REDIS_HOST
+      REDIS_PORT=$REDIS_PORT
+      REDIS_PASSWORD=$REDIS_PASSWORD
+      JWT=$JWT_SECRET
+      EOF
+
+    # Create config-map's
+    - kubectl create configmap app-config --from-env-file=.env --dry-run=client -o yaml | kubectl apply -f -
+    - kubectl create configmap nginx-config --from-file=nginx.conf --dry-run=client -o yaml | kubectl apply -f -
+    - kubectl create configmap prometheus-config --from-file=prometheus.yml --dry-run=client -o yaml | kubectl apply -f -
+
+    # Create docker registry secret
+    - kubectl create secret docker-registry registry-secret --docker-server=$REGISTRY --docker-username=$REGISTRY_USERNAME --docker-password=$REGISTRY_PASSWORD --dry-run=client -o yaml | kubectl apply -f -
+
+    # Deploy databases
+    - kubectl apply -f k8s/databases/
+
+    # Build and push services
+    - |
+      for service in admin_api bot_api; do
+        docker build -t $REGISTRY/$service:latest ./${service}_service
+        docker push $REGISTRY/$service:latest
+      done
+
+    # Deploy
+    - kubectl apply -f k8s/project-services/
+    - kubectl apply -f k8s/other-services/

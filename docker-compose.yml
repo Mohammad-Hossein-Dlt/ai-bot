@@ -14,17 +14,17 @@ services:
     ports:
       - 80:80
 
-  # bot-service:
-  #   working_dir: /app
-  #   build:
-  #     context: .
-  #     dockerfile: deploy/bot/Dockerfile
-  #   container_name: bot_service
-  #   restart: always
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - postgres-service
+  bot-service:
+    working_dir: /app
+    build:
+      context: .
+      dockerfile: deploy/bot/Dockerfile
+    container_name: bot_service
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres-service
 
   # Mongo-db
   mongodb-service:
