@@ -3,14 +3,16 @@ stages:
   - deploy
 
 variables:
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_DRIVER: "overlay2"
   DOCKER_TLS_CERTDIR: "./certs"
 
 build:
   stage: build
   # image: docker:latest
-  # services:
-  #   - name: docker:latest
-  #     alias: docker
+  services:
+    - name: docker:24.0.5-dind
+      # alias: docker
   only:
     - main
 
