@@ -3,10 +3,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     
     DOMAIN_URL: str
+    
     PLATFORM: str
+    
     BOT_TOKEN: str
+    
     GPT_TOKEN: str
     GPT_BASE_URL: str
+    
     ZARINPAL_MERCHANT_ID: str
     
     DB_STACK: str
