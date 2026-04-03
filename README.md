@@ -1,7 +1,7 @@
 `.env` file parameters, put it next to the services
 
 ```
-DOMAIN_URL=https://avida-ai.com # Your website domain
+DOMAIN_URL=https://ai-bot.com # Your website domain
 
 PLATFORM=Api # Api | Telegram_bot, Bale_bot
 BOT_TOKEN=...
