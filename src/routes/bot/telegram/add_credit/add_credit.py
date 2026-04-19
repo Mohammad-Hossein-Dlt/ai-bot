@@ -15,8 +15,8 @@ from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKey
 
 from src.routes.depends.repo_depend import cache_repo_depend, user_repo_depend, payment_repo_depend, token_settings_repo_depend, discount_code_repo_depend
 from src.routes.depends.service_depend import payment_service_depend
-from src.routes.depends.bot_platform_depend import bot_platform_depend
 from src.routes.depends.inline_keyboard_depend import inline_keyboard_depend
+from src.routes.depends.bot_platform_depend import bot_platform_depend
 
 from src.gateway.external.interface.Ipayment_service import IPaymentService
 
@@ -35,8 +35,8 @@ async def request_steps(
     token_settings_repo: ITokenSettingsRepo = Depends(token_settings_repo_depend),
     discount_code_repo: IDiscountCodeRepo = Depends(discount_code_repo_depend),
     payment_service: IPaymentService = Depends(payment_service_depend),
-    bot_platform: str = Depends(bot_platform_depend),
     inline_keyboard: IInlineKeyboard = Depends(inline_keyboard_depend),
+    bot_platform: str = Depends(bot_platform_depend),
 ):
     
     start_point = callback_data is None
@@ -50,8 +50,8 @@ async def request_steps(
         request = ShowCurrentCredit(
             cache_repo,
             user_repo,
-            bot_platform,
             inline_keyboard,
+            bot_platform,
         )
         
         text, keyboard = await request.execute(callback_data, chat_id)
@@ -66,8 +66,8 @@ async def request_steps(
         request = ShowCurrentCredit(
             cache_repo,
             user_repo,
-            bot_platform,
             inline_keyboard,
+            bot_platform,
         )
         
         text, keyboard = await request.execute(callback_data, chat_id)
@@ -102,8 +102,8 @@ async def request_steps(
             token_settings_repo,
             payment_repo,
             payment_service,
-            bot_platform,
             inline_keyboard,
+            bot_platform,
         )
         
         text, keyboard = await request.execute(callback_data, chat_id)

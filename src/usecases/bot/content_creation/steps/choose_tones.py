@@ -18,6 +18,7 @@ class ChooseTones:
         tones: list[str],
         inline_keyboard: IInlineKeyboard,
     ):
+        
         self.tones = tones
         self.inline_keyboard = inline_keyboard
     

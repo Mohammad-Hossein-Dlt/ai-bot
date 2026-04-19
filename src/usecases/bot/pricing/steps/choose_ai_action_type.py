@@ -16,6 +16,7 @@ class ChooseAiActionType:
         ai_action_type_fa: list[str],
         inline_keyboard: IInlineKeyboard,
     ):
+        
         self.ai_action_type_fa = ai_action_type_fa
         self.inline_keyboard = inline_keyboard
     

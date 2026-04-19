@@ -41,7 +41,6 @@ class Produce:
         bot_platform: str,
     ):
                 
-        
         self.get_user_by_chat_id_usecase = GetUserByChatId(user_repo, bot_platform)
         self.modify_user_token_credit_usecase = ModifyUserTokenCredit(user_repo, bot_platform)
         self.get_token_settings_usecase = GetTokenSettings(token_settings_repo)

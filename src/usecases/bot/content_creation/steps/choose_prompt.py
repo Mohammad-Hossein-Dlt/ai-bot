@@ -14,10 +14,11 @@ class ChoosePrompt:
     
     def __init__(
         self,
-        prompts: list[str],
+        prompts_titles: list[str],
         inline_keyboard: IInlineKeyboard,
     ):
-        self.prompts = prompts
+        
+        self.prompts_titles = prompts_titles
         self.inline_keyboard = inline_keyboard
     
     def execute(
@@ -28,10 +29,10 @@ class ChoosePrompt:
         text = 'موضوع درخواستی خود را انتخاب کنید.'
                 
         for index in callback_data.paginate:
-            if index >= len(self.prompts): break
+            if index >= len(self.prompts_titles): break
             self.inline_keyboard.add_button(
                 Button(
-                    text=self.prompts[index],
+                    text=self.prompts_titles[index],
                     callback_data=callback_data.encode(step=self.step+1, page=0, origin="p", index=index),
                 ),
             )
@@ -54,11 +55,11 @@ class ChoosePrompt:
             callback_data=f"close:{callback_data.message_id}",
         )
         
-        if callback_data.start > 0 and callback_data.end < len(self.prompts):
+        if callback_data.start > 0 and callback_data.end < len(self.prompts_titles):
             self.inline_keyboard.add_row(previous_page, next_page)
         elif callback_data.start > 0:
             self.inline_keyboard.add_row(previous_page)
-        elif callback_data.end < len(self.prompts):
+        elif callback_data.end < len(self.prompts_titles):
             self.inline_keyboard.add_row(next_page)
 
         self.inline_keyboard.add_row(back, close)

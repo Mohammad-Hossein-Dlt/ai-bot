@@ -17,6 +17,7 @@ class EnterPrompt:
         self,
         inline_keyboard: IInlineKeyboard,
     ):
+        
         self.inline_keyboard = inline_keyboard
     
     async def execute(

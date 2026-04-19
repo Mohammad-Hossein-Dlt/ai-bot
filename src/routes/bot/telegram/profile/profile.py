@@ -11,6 +11,7 @@ from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKey
 
 from src.routes.depends.repo_depend import user_repo_depend
 from src.routes.depends.inline_keyboard_depend import inline_keyboard_depend
+from src.routes.depends.bot_platform_depend import bot_platform_depend
 
 from src.usecases.bot.profile.steps.main_menu import MainMenu
 
@@ -21,6 +22,7 @@ async def request_steps(
     callback_data: CallbackDataRequest | None = None,
     user_repo: IUserRepo = Depends(user_repo_depend),
     inline_keyboard: IInlineKeyboard = Depends(inline_keyboard_depend),
+    bot_platform: str = Depends(bot_platform_depend),
 ):
     
     start_point = callback_data is None
@@ -34,6 +36,7 @@ async def request_steps(
         main_menu_usecase = MainMenu(
             user_repo,
             inline_keyboard,
+            bot_platform,
         )
         
         text, keyboard = await main_menu_usecase.execute(callback_data, chat_id)
@@ -48,6 +51,7 @@ async def request_steps(
         main_menu_usecase = MainMenu(
             user_repo,
             inline_keyboard,
+            bot_platform,
         )
         
         text, keyboard = await main_menu_usecase.execute(callback_data, chat_id)

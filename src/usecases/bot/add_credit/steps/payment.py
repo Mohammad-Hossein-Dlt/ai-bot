@@ -29,8 +29,8 @@ class Payment:
         token_settings_repo: ITokenSettingsRepo,
         payment_repo: IPaymentRepo,
         payment_service: IPaymentService,
-        bot_platform: str,
         inline_keyboard: IInlineKeyboard,
+        bot_platform: str,
     ):
         
         self.get_conversation_usecase = GetConversation(cache_repo, user_repo)

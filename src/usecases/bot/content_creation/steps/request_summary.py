@@ -37,8 +37,8 @@ class RequestSummary:
         user_repo: IUserRepo,
         token_settings_repo: ITokenSettingsRepo,
         category_repo: ICategoryRepo,
-        bot_platform: str,
         inline_keyboard: IInlineKeyboard,
+        bot_platform: str,
     ):
         
         self.save_conversation_usecase = SaveConversation(cache_repo, user_repo)

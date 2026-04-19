@@ -4,8 +4,8 @@ from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
 from src.repo.interface.Idiscount_code_repo import IDiscountCodeRepo
 from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard, Button
 
-from src.usecases.bot.get_conversation import GetConversation
 from src.usecases.bot.save_conversation import SaveConversation
+from src.usecases.bot.get_conversation import GetConversation
 from src.usecases.token_settings.get_token_settings import GetTokenSettings
 from src.usecases.discount_code.get_discount_code_by_code import GetDiscountCodeByCode
 
@@ -36,9 +36,8 @@ class RequestSummary:
         inline_keyboard: IInlineKeyboard,
     ):
 
-        self.get_conversation_usecase = GetConversation(cache_repo, user_repo)
         self.save_conversation_usecase = SaveConversation(cache_repo, user_repo)
-        # self.delete_conversation_usecase = DeleteConversation(cache_repo, user_repo)
+        self.get_conversation_usecase = GetConversation(cache_repo, user_repo)
         self.get_token_settings_usecase = GetTokenSettings(token_settings_repo)
         self.get_discount_code_by_code_usecase = GetDiscountCodeByCode(discount_code_repo)
             

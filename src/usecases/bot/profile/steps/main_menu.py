@@ -1,6 +1,8 @@
 from src.repo.interface.Iuser_repo import IUserRepo
 from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard, Button
 
+from src.usecases.user.get_user_by_chat_id import GetUserByChatId
+
 from src.models.schemas.bot.callback_request import CallbackDataRequest
 
 from src.domain.schemas.user.user_model import UserModel
@@ -17,9 +19,11 @@ class MainMenu:
         self,
         user_repo: IUserRepo,
         inline_keyboard: IInlineKeyboard,
+        bot_platform: str,
     ):
         
-        self.user_repo = user_repo
+        self.get_user_by_chat_id_usecase = GetUserByChatId(user_repo, bot_platform)
+        
         self.inline_keyboard = inline_keyboard
         
     async def execute(
@@ -28,7 +32,7 @@ class MainMenu:
         chat_id: str,
     ):
         
-        user: UserModel = await self.user_repo.get_by_chat_id(chat_id)
+        user: UserModel = await self.get_user_by_chat_id_usecase.execute(chat_id)
     
         text = f"شناسه کاربری شما: user_id"
         text = text.replace("user_id", str(chat_id))

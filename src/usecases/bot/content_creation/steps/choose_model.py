@@ -27,6 +27,7 @@ class ChooseModel:
     ):
 
         self.get_all_categoryies_usecase = GetAllCategories(category_repo)
+        
         self.inline_keyboard = inline_keyboard
     
     async def execute(

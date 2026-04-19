@@ -17,6 +17,7 @@ class ChooseWordsNumber:
         words_number: list[int],
         inline_keyboard: IInlineKeyboard,
     ):
+        
         self.words_number = words_number
         self.inline_keyboard = inline_keyboard
     

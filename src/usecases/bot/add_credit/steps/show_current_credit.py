@@ -23,8 +23,8 @@ class ShowCurrentCredit:
         self,
         cache_repo: ICacheRepo,
         user_repo: IUserRepo,
-        bot_platform: str,
         inline_keyboard: IInlineKeyboard,
+        bot_platform: str,
     ):
         
         self.save_conversation_usecase = SaveConversation(cache_repo, user_repo)

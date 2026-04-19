@@ -16,8 +16,8 @@ from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKey
 
 from src.routes.depends.repo_depend import cache_repo_depend, user_repo_depend, category_repo_depend, token_settings_repo_depend
 from src.routes.depends.ai_depend import ai_client_depend
-from src.routes.depends.bot_platform_depend import bot_platform_depend
 from src.routes.depends.inline_keyboard_depend import inline_keyboard_depend
+from src.routes.depends.bot_platform_depend import bot_platform_depend
 
 from src.models.schemas.bot.text_to_audio_request_model import TextToAudioRequestModel
 from src.usecases.bot.text_to_audio.steps.choose_ai_platform import ChooseAiPlatform
@@ -36,8 +36,8 @@ async def request_steps(
     category_repo: ICategoryRepo = Depends(category_repo_depend),
     token_settings_repo: ITokenSettingsRepo = Depends(token_settings_repo_depend),
     ai_client: AiClient = Depends(ai_client_depend),
-    bot_platform: str = Depends(bot_platform_depend),
     inline_keyboard: IInlineKeyboard = Depends(inline_keyboard_depend),
+    bot_platform: str = Depends(bot_platform_depend),
 ):
     
     start_point = callback_data is None
@@ -98,8 +98,8 @@ async def request_steps(
             user_repo,
             token_settings_repo,
             category_repo,
-            bot_platform,
             inline_keyboard,
+            bot_platform,
         )
         
         text, keyboard = await request_summary_usecase.execute(callback_data, request, chat_id)

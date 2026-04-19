@@ -4,8 +4,8 @@ from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
 from src.repo.interface.Icategory_repo import ICategoryRepo
 from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard, Button
 
-from src.usecases.bot.delete_conversation import DeleteConversation
 from src.usecases.bot.save_conversation import SaveConversation
+from src.usecases.bot.delete_conversation import DeleteConversation
 from src.usecases.user.get_user_by_chat_id import GetUserByChatId
 from src.usecases.token_settings.get_token_settings import GetTokenSettings
 from src.usecases.category.get_category import GetCategory
@@ -36,13 +36,12 @@ class RequestSummary:
         user_repo: IUserRepo,
         token_settings_repo: ITokenSettingsRepo,
         category_repo: ICategoryRepo,
-        bot_platform: str,
         inline_keyboard: IInlineKeyboard,
+        bot_platform: str,
     ):
         
-        
-        self.delete_conversation_usecase = DeleteConversation(cache_repo, user_repo)
         self.save_conversation_usecase = SaveConversation(cache_repo, user_repo)
+        self.delete_conversation_usecase = DeleteConversation(cache_repo, user_repo)
         self.get_user_by_chat_id_usecase = GetUserByChatId(user_repo, bot_platform)
         self.get_token_settings_usecase = GetTokenSettings(token_settings_repo)
         self.get_category_usecase = GetCategory(category_repo)

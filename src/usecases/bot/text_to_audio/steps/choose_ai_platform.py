@@ -17,6 +17,7 @@ class ChooseAiPlatform:
         self,
         inline_keyboard: IInlineKeyboard,
     ):
+        
         self.inline_keyboard = inline_keyboard
     
     def execute(
