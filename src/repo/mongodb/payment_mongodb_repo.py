@@ -13,13 +13,13 @@ class PaymentMongodbRepo(IPaymentRepo):
 
         try:
             await self.get_by_id(payment.id)
-            raise DuplicateEntityError(409, f"Payment already exist")
+            raise DuplicateEntityError(409, "Payment already exist")
         except EntityNotFoundError:
-            new_meta_data = await PaymentCollection.insert(
+            new_payment = await PaymentCollection.insert(
                 PaymentCollection(**payment.model_dump(exclude={"id", "_id"})),
             )
-            return PaymentModel.model_validate(new_meta_data, from_attributes=True)
-    
+            return PaymentModel.model_validate(new_payment, from_attributes=True)
+        
     async def get_by_id(
         self,
         payment_id: str,
@@ -27,6 +27,19 @@ class PaymentMongodbRepo(IPaymentRepo):
     
         try:
             payment = await PaymentCollection.get(payment_id)
+            return PaymentModel.model_validate(payment, from_attributes=True)
+        except:
+            raise EntityNotFoundError(status_code=404, message="Payment not found")
+        
+    async def get_by_user_id(
+        self,
+        user_id: str,
+    ) -> PaymentModel:
+    
+        try:
+            payment = await PaymentCollection.find_one(
+                PaymentCollection.user_id == ObjectId(user_id),
+            )
             return PaymentModel.model_validate(payment, from_attributes=True)
         except:
             raise EntityNotFoundError(status_code=404, message="Payment not found")
@@ -49,7 +62,8 @@ class PaymentMongodbRepo(IPaymentRepo):
         payment: PaymentModel,
     ) -> PaymentModel:
     
-        try:                
+        try:
+            
             to_update: dict = payment.custom_model_dump(
                 exclude_unset=True,
                 exclude_none=True,
@@ -58,16 +72,20 @@ class PaymentMongodbRepo(IPaymentRepo):
                 },
                 db_stack="no-sql",
             )
-                        
-            await PaymentCollection.find_one(
-                PaymentCollection.id == payment.id,
-            ).update(
+            
+            to_update = [
                 {
                     "$set": to_update,
                 },
-            )
-                        
-            return await self.get_by_id(payment.id)
+            ]
+            
+            if payment.id:
+                await PaymentCollection.find_one(PaymentCollection.id == payment.id).update(to_update)
+                return await self.get_by_id(payment.id)
+            elif payment.user_id:
+                await PaymentCollection.find_one(PaymentCollection.user_id == payment.user_id).update(to_update)
+                return await self.get_by_user_id(payment.user_id)
+            
         except:
             raise EntityNotFoundError(status_code=404, message="Payment not found")
 

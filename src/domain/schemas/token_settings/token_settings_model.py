@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Self
 
 class TokenSettingsModel(CustomBaseModel):
+
     id: int | PydanticObjectId | None = None
     tokens_per_prompt: int | None = None
     unit: int | None = None

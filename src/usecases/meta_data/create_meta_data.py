@@ -14,11 +14,11 @@ class CreateMetaData:
     
     async def execute(
         self,
-        meta_data: CreateMetaDataInput,
+        new_meta_data: CreateMetaDataInput,
     ) -> MetaDataModel:
         
         try:
-            to_create: MetaDataModel = MetaDataModel.model_validate(meta_data, from_attributes=True)
+            to_create: MetaDataModel = MetaDataModel.model_validate(new_meta_data, from_attributes=True)
             return await self.meta_data_repo.create(to_create)
         except AppBaseException:
             raise

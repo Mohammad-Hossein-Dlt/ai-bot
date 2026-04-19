@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Self
 
 class PaymentModel(CustomBaseModel):
+
     id: int | PydanticObjectId | None = None
     user_id:  int | PydanticObjectId | None = None
     amount: int | None = None

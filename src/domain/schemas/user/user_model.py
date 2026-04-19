@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Self
 
 class UserModel(CustomBaseModel):
+    
     id: int | PydanticObjectId | None = None
     platform_accounts: list[AccountModel]
     tokens: int = Field(default=0)

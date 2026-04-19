@@ -12,7 +12,7 @@ class MetaDataMongodbRepo(IMetaDataRepo):
 
         try:
             await self.get()
-            raise DuplicateEntityError(409, f"Meta data already exist")
+            raise DuplicateEntityError(409, "Meta data already exist")
         except EntityNotFoundError:
             new_meta_data = await MetaDataCollection.insert(
                 MetaDataCollection(**meta_data.model_dump(exclude={"id", "_id"})),

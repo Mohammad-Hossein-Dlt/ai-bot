@@ -1,8 +1,13 @@
+from src.domain.enums import AiPlatformType, AiActionType
+from src.domain.schemas.user.user_model import UserModel
+from src.domain.schemas.category.category_model import CategoryModel
 from src.repo.interface.Icache import ICacheRepo
 from src.repo.interface.Iuser_repo import IUserRepo
+from src.repo.interface.Icategory_repo import ICategoryRepo
 from src.models.schemas.bot.callback_request import CallbackDataRequest
 from src.models.schemas.bot.text_to_audio_request_model import TextToAudioRequestModel
-from src.domain.schemas.user.user_model import UserModel
+from src.usecases.category.get_all_categories import GetAllCategories
+from src.models.schemas.filter.categories_filter_input import CategoryFilterInput
 from typing import ClassVar
 
 class ProduceAudioCache:
@@ -11,13 +16,15 @@ class ProduceAudioCache:
     
     def __init__(
         self,
-        user_repo: IUserRepo,
         cache_repo: ICacheRepo,
-        ai_platforms: list[str],
+        user_repo: IUserRepo,
+        category_repo: ICategoryRepo,
     ):
-        self.user_repo = user_repo
+        
         self.cache_repo = cache_repo    
-        self.ai_platforms = ai_platforms
+        self.user_repo = user_repo
+
+        self.get_all_categoryies_usecase = GetAllCategories(category_repo)
             
     async def execute(
         self,
@@ -36,8 +43,19 @@ class ProduceAudioCache:
             request: TextToAudioRequestModel = TextToAudioRequestModel()
         
         if callback_data.origin == "ap":
-            request.ai_platform = self.ai_platforms[callback_data.index]
-
+            ai_platforms = [platform.value for platform in AiPlatformType]
+            request.ai_platform = ai_platforms[callback_data.index]
+        elif callback_data.origin == "am":
+            models = await self.get_all_categoryies_usecase.execute(
+                CategoryFilterInput(
+                    ai_platform_type=request.ai_platform,
+                    ai_action_type=AiActionType.text_to_audio,
+                ),
+            )
+            if models and len(models) > callback_data.index:
+                selected_model: CategoryModel = models[callback_data.index]
+                request.ai_model_id = str(selected_model.id)
+                
         return TextToAudioRequestModel.model_validate(
             self.cache_repo.save(
                 cache_id,

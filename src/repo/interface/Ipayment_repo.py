@@ -16,6 +16,13 @@ class IPaymentRepo(ABC):
     ) -> PaymentModel:
     
         raise NotImplementedError
+    
+    @abstractmethod
+    async def get_by_user_id(
+        user_id: str,
+    ) -> PaymentModel:
+            
+        raise NotImplementedError
         
     @abstractmethod
     async def get_all_by_user_id(

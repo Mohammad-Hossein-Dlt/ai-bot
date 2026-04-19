@@ -1,5 +1,7 @@
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import Button, IInlineKeyboard
+from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard, Button
+
 from src.models.schemas.bot.callback_request import CallbackDataRequest
+
 from typing import ClassVar, Any
 from raw_texts.raw_texts import (
     BACK,
@@ -9,7 +11,7 @@ from raw_texts.raw_texts import (
 
 class EnterPrompt:
     
-    step: ClassVar[int] = 2
+    step: ClassVar[int] = 3
     
     def __init__(
         self,

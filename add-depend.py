@@ -17,10 +17,18 @@ except ModuleNotFoundError:  # pragma: no cover
         tomllib = None  # we'll guard its usage
 
 exclusive_packages = {
+    "fastapi",
     "pydantic",
     "pymongo",
     "motor",
 }
+
+mirror = [
+    "--index",
+    # "https://mirror-pypi.runflare.com/simple",
+    # "https://package-mirror.liara.ir/repository/pypi",
+    "https://repo.hmirror.ir/python/simple",
+]
 
 base_env = {
     "UV_MANAGED": "false",
@@ -32,25 +40,36 @@ base_env = {
 def run_cmd(
     cmd: list[str],
     cwd: Path | None = None,
+    return_result: bool = False,
 ) -> str:
 
     env = os.environ.copy()
     env.update(base_env)
-
-    proc = subprocess.run(
-        cmd,
-        cwd=str(cwd) if cwd else None,
-        env=env,
-        capture_output=True,
-        text=True,
-    )
     
-    if proc.returncode != 0:
-        print(' '.join(cmd))
-        print(proc.stderr.strip())
-            
-    return proc.stdout
+    print()
+    print(' '.join(cmd))
+    print()
+    
+    if return_result:
 
+        proc = subprocess.run(
+            cmd,
+            cwd=str(cwd) if cwd else None,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        
+        if proc.returncode != 0:
+            print(proc.stderr.strip())
+                
+        return proc.stdout
+    else:
+        subprocess.run(
+            cmd,
+            cwd=str(cwd) if cwd else None,
+            shell=True,
+        )
 
 def name_only(
     name: str,
@@ -119,6 +138,7 @@ def ensure_venv_available(
             [
                 "uv",
                 "sync",
+                *mirror,
             ],
         )
     else:
@@ -157,8 +177,7 @@ def check_requirements(
                 "uv",
                 "add",
                 "pipdeptree",
-                # "--index",
-                # "https://mirror-pypi.runflare.com/simple",
+                *mirror,
                 "--active",
             ],
             cwd=dir,
@@ -176,6 +195,7 @@ def get_top_packages(dir: Path):
             "--json",
         ],
         cwd=dir,
+        return_result=True,
     )
     data: list[dict] = json.loads(result)
     
@@ -236,6 +256,7 @@ def process(
             "add",
             "-r",
             "requirements.txt",
+            *mirror,
             "--active",
             # "--no-sync",
             "--frozen",

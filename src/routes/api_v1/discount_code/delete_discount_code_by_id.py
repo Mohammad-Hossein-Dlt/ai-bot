@@ -15,12 +15,12 @@ from src.infra.exceptions.exceptions import AppBaseException
     }    
 )
 async def delete_discount_code_by_id(
-    discount_code_id: str,
+    code_id: str,
     discount_code_repo: IDiscountCodeRepo = Depends(discount_code_repo_depend),
 ):
     try:
         delete_discount_code_by_id_usecase = DeleteDiscountCodeById(discount_code_repo)
-        output = await delete_discount_code_by_id_usecase.execute(discount_code_id)
+        output = await delete_discount_code_by_id_usecase.execute(code_id)
         return output.model_dump(mode="json")
     except AppBaseException as ex:
         raise HTTPException(status_code=ex.status_code, detail=str(ex))

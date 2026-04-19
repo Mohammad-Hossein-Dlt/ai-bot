@@ -4,7 +4,8 @@ class Settings(BaseSettings):
     
     DOMAIN_URL: str
     
-    PLATFORM: str
+    RUN_PLATFORM: str
+    BOT_PLATFORM: str
     
     BOT_TOKEN: str
     

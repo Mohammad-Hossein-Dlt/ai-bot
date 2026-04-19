@@ -14,11 +14,11 @@ class UpdateTokenSettings:
     
     async def execute(
         self,
-        settings: UpdateTokenSettingsInput,
+        token_settings: UpdateTokenSettingsInput,
     ) -> TokenSettingsModel:
         
         try:
-            to_update: TokenSettingsModel = TokenSettingsModel.model_validate(settings, from_attributes=True)
+            to_update: TokenSettingsModel = TokenSettingsModel.model_validate(token_settings, from_attributes=True)
             return await self.token_settings_repo.update(to_update)
         except AppBaseException:
             raise

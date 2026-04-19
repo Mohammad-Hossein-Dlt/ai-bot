@@ -1,13 +1,18 @@
 from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
-from src.domain.schemas.token_settings.token_settings_model import TokenSettingsModel
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import Button, IInlineKeyboard
+from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard, Button
+
+from src.usecases.token_settings.get_token_settings import GetTokenSettings
+
 from src.models.schemas.bot.callback_request import CallbackDataRequest
-from typing import ClassVar
+
+from src.domain.schemas.token_settings.token_settings_model import TokenSettingsModel
+
+from src.infra.utils.number_converter import english_to_persian, number_formatter
+
 from raw_texts.raw_texts import (
     BACK,
     CLOSE_PANEL,
 )
-from src.infra.utils.number_converter import english_to_persian, persian_to_english, number_formatter
 
 class EnterToken:
     
@@ -18,7 +23,9 @@ class EnterToken:
         token_settings_repo: ITokenSettingsRepo,
         inline_keyboard: IInlineKeyboard,
     ):
-        self.token_settings_repo = token_settings_repo
+        
+        self.get_token_settings_usecase = GetTokenSettings(token_settings_repo)
+
         self.inline_keyboard = inline_keyboard
             
     async def execute(
@@ -26,7 +33,7 @@ class EnterToken:
         callback_data: CallbackDataRequest,
     ):
         
-        token_settings: TokenSettingsModel = await self.token_settings_repo.get()
+        token_settings: TokenSettingsModel = await self.get_token_settings_usecase.execute()
 
         max_amount_formatted = english_to_persian(number_formatter(token_settings.max_tokens))
         min_amount_formatted = english_to_persian(number_formatter(token_settings.min_tokens))

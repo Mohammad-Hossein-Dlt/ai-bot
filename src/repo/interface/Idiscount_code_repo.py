@@ -49,3 +49,8 @@ class IDiscountCodeRepo(ABC):
     ) -> bool:
     
         raise NotImplementedError
+    
+    @abstractmethod
+    async def delete_all() -> bool:
+    
+        raise NotImplementedError

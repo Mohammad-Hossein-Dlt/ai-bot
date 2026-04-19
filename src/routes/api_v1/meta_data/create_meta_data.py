@@ -16,12 +16,12 @@ from src.infra.exceptions.exceptions import AppBaseException
     }    
 )
 async def create_meta_data(
-    meta_data: CreateMetaDataInput = Query(...),
+    new_meta_data: CreateMetaDataInput = Query(...),
     meta_data_repo: IMetaDataRepo = Depends(meta_data_repo_depend),
 ):
     try:
         create_meta_data_usecase = CreateMetaData(meta_data_repo)
-        output = await create_meta_data_usecase.execute(meta_data)
+        output = await create_meta_data_usecase.execute(new_meta_data)
         return output.model_dump(mode="json")
     except AppBaseException as ex:
         raise HTTPException(status_code=ex.status_code, detail=str(ex))

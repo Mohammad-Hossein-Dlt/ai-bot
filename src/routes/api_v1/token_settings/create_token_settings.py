@@ -16,12 +16,12 @@ from src.infra.exceptions.exceptions import AppBaseException
     }    
 )
 async def create_token_settings(
-    token_settings: CreateTokenSettingsInput = Query(...),
+    new_token_settings: CreateTokenSettingsInput = Query(...),
     token_settings_repo: ITokenSettingsRepo = Depends(token_settings_repo_depend),
 ):
     try:
         create_token_settings_usecase = CreateTokenSettings(token_settings_repo)
-        output = await create_token_settings_usecase.execute(token_settings)
+        output = await create_token_settings_usecase.execute(new_token_settings)
         return output.model_dump(mode="json")
     except AppBaseException as ex:
         raise HTTPException(status_code=ex.status_code, detail=str(ex))

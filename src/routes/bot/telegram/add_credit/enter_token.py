@@ -20,15 +20,15 @@ from src.usecases.bot.add_credit.steps.enter_token import EnterToken
 async def entry_point(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-    user_repo: IUserRepo = Depends(user_repo_depend),
     cache_repo: ICacheRepo = Depends(cache_repo_depend),
+    user_repo: IUserRepo = Depends(user_repo_depend),
     token_settings_repo: ITokenSettingsRepo = Depends(token_settings_repo_depend),
     inline_keyboard: IInlineKeyboard = Depends(inline_keyboard_depend),
 ) -> int:
     
     chat_id = update.effective_user.id
 
-    get_conversation_usecase = GetConversation(user_repo, cache_repo)
+    get_conversation_usecase = GetConversation(cache_repo, user_repo)
     conversation = await get_conversation_usecase.execute(chat_id)
 
     enter_token_usecase = EnterToken(token_settings_repo, inline_keyboard)
@@ -51,7 +51,7 @@ async def back_from_conversation(
     
     chat_id = update.effective_user.id
     
-    get_conversation_usecase = GetConversation(user_repo, cache_repo)
+    get_conversation_usecase = GetConversation(cache_repo, user_repo)
     conversation = await get_conversation_usecase.execute(chat_id)
             
     await request_steps(
@@ -73,8 +73,14 @@ async def enter_token(
     chat_id = update.effective_user.id
     tokens = update.effective_message.text
 
-    save_conversation_usecase = SaveConversation(user_repo, cache_repo)
-    conversation: ConversationModel = await save_conversation_usecase.execute(chat_id, message={"tokens": tokens})
+    get_conversation_usecase = GetConversation(cache_repo, user_repo)
+    conversation = await get_conversation_usecase.execute(chat_id)
+    
+    messages = conversation.messages
+    messages.update({"tokens": tokens})
+
+    save_conversation_usecase = SaveConversation(cache_repo, user_repo)
+    conversation: ConversationModel = await save_conversation_usecase.execute(chat_id, messages=messages)
     
     callback_data = conversation.callback_data
     

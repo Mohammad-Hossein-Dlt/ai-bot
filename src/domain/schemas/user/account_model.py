@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Self
 
 class AccountModel(CustomBaseModel):
+    
     chat_id: str
     platform: PlatformEntities = Field(default=PlatformEntities.telegram)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

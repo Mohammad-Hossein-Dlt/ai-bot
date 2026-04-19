@@ -16,12 +16,12 @@ from src.infra.exceptions.exceptions import AppBaseException
     }    
 )
 async def create_discount_code(
-    discount_code: CreateDiscountCodeInput = Query(...),
+    new_discount_code: CreateDiscountCodeInput = Query(...),
     discount_code_repo: IDiscountCodeRepo = Depends(discount_code_repo_depend),
 ):
     try:
         create_discount_code_usecase = CreateDiscountCode(discount_code_repo)
-        output = await create_discount_code_usecase.execute(discount_code)
+        output = await create_discount_code_usecase.execute(new_discount_code)
         return output.model_dump(mode="json")
     except AppBaseException as ex:
         raise HTTPException(status_code=ex.status_code, detail=str(ex))

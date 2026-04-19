@@ -96,6 +96,7 @@ class DiscountCodeMongodbRepo(IDiscountCodeRepo):
             raise EntityNotFoundError(status_code=404, message="Code not found")
     
     async def delete_by_code(
+        self,
         code: str,
     ) -> bool:
         
@@ -104,6 +105,16 @@ class DiscountCodeMongodbRepo(IDiscountCodeRepo):
                 DiscountCodeCollection.code == code.strip(),
             ).delete()
             
+            return bool(result.deleted_count)
+        except:
+            raise EntityNotFoundError(status_code=404, message="Code not found")
+        
+    async def delete_all(
+        self,
+    ) -> bool:
+    
+        try:
+            result = await DiscountCodeCollection.delete_all()
             return bool(result.deleted_count)
         except:
             raise EntityNotFoundError(status_code=404, message="Code not found")

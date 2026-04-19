@@ -3,10 +3,10 @@ from src.infra.context.context_manager import AppContextManager
 
 AppContextManager.init_context()
 
-if AppContext.platform == "Api":
+if AppContext.run_platform == "api":
     from src.infra.fastapi_config.app import app
     from src.routes.api_v1.main_router import main_router_v1
     app.include_router(main_router_v1)
-elif "bot" in AppContext.platform:
+elif AppContext.run_platform == "bot":
     from src.routes.bot.telegram.bot import start_bot
     start_bot()

@@ -14,11 +14,11 @@ class CreateTokenSettings:
     
     async def execute(
         self,
-        settings: CreateTokenSettingsInput,
+        new_token_settings: CreateTokenSettingsInput,
     ) -> TokenSettingsModel:
         
         try:
-            to_create: TokenSettingsModel = TokenSettingsModel.model_validate(settings, from_attributes=True)
+            to_create: TokenSettingsModel = TokenSettingsModel.model_validate(new_token_settings, from_attributes=True)
             return await self.token_settings_repo.create(to_create)
         except AppBaseException:
             raise

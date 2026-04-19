@@ -8,4 +8,5 @@ def payment_service_depend() -> IPaymentService:
     return PaymentService(
         AppContext.http_client,
         "",
+        AppContext.zarinpal_merchant_id,
     )

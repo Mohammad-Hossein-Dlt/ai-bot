@@ -53,4 +53,4 @@ async def terminate_database_client(
         context.engine.dispose()
         
     if isinstance(context, MongodbClient):
-        context.client.close()
+        await context.client.close()

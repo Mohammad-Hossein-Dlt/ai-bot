@@ -1,5 +1,5 @@
 from src.repo.interface.Ipayment_repo import IPaymentRepo
-from src.models.schemas.payment.payment_input import PaymentInput
+from src.models.schemas.payment.modify_payment_input import ModifyPaymentInput
 from src.domain.schemas.payment.payment_model import PaymentModel
 from src.infra.exceptions.exceptions import AppBaseException, OperationFailureException
 
@@ -14,12 +14,22 @@ class ModifyPayment:
     
     async def execute(
         self,
-        payment: PaymentInput,
+        payment: ModifyPaymentInput,
     ) -> PaymentModel:
         
         try:
-            to_modify: PaymentModel = PaymentModel.model_validate(payment, from_attributes=True)
+            
+            to_modify = PaymentModel()
+            
+            if payment.payment_id:
+                to_modify: PaymentModel = await self.payment_repo.get_by_id(payment.payment_id)
+            if payment.user_id:
+                to_modify: PaymentModel = await self.payment_repo.get_by_user_id(payment.user_id)
+                
+            to_modify.status = payment.status
+            
             return await self.payment_repo.modify(to_modify)
+        
         except AppBaseException:
             raise
         except:

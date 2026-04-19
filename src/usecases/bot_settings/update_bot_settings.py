@@ -14,11 +14,11 @@ class UpdateBotSettings:
     
     async def execute(
         self,
-        settings: UpdateBotSettingsInput,
+        bot_settings: UpdateBotSettingsInput,
     ) -> BotSettingsModel:
         
         try:
-            to_update: BotSettingsModel = BotSettingsModel.model_validate(settings, from_attributes=True)
+            to_update: BotSettingsModel = BotSettingsModel.model_validate(bot_settings, from_attributes=True)
             return await self.settings_repo.update(to_update)
         except AppBaseException:
             raise

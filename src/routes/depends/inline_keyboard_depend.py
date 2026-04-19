@@ -4,10 +4,10 @@ from src.routes.bot.inline_keyboard.implementations.telegram_inline_Keyboard imp
 from src.routes.bot.inline_keyboard.implementations.bale_inline_Keyboard import BaleInlineKeyboard
 
 def inline_keyboard_depend() -> IInlineKeyboard:
-    platform = AppContext.platform
-    if platform == "Telegram_bot":
+    platform = AppContext.bot_platform
+    if platform == "telegram":
         return TelegramInlineKeyboard()   
-    elif platform == "Bale_bot":
+    elif platform == "bale":
         return BaleInlineKeyboard()
-    elif platform == "Rubika_bot":
+    elif platform == "rubika":
         return TelegramInlineKeyboard()

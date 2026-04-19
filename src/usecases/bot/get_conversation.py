@@ -10,11 +10,12 @@ class GetConversation:
     
     def __init__(
         self,
-        user_repo: IUserRepo,
         cache_repo: ICacheRepo,
+        user_repo: IUserRepo,
     ):
-        self.user_repo = user_repo
+        
         self.cache_repo = cache_repo
+        self.user_repo = user_repo
 
     async def execute(
         self,

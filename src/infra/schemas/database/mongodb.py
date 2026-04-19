@@ -1,6 +1,6 @@
 from .base_client import BaseDatabaseClient
 from pydantic import BaseModel, ConfigDict
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.asynchronous.mongo_client import AsyncMongoClient
 
 class MongodbParams(BaseModel):
     host: str
@@ -15,7 +15,7 @@ class MongodbParams(BaseModel):
 
 
 class MongodbClient(BaseDatabaseClient, BaseModel):
-    client: AsyncIOMotorClient
+    client: AsyncMongoClient
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,

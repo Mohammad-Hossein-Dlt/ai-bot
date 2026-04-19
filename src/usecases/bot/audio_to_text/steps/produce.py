@@ -1,14 +1,22 @@
-from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
 from src.repo.interface.Iuser_repo import IUserRepo
-from src.repo.interface.Icache import ICacheRepo
-from src.domain.schemas.token_settings.token_settings_model import TokenSettingsModel
+from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
+from src.repo.interface.Icategory_repo import ICategoryRepo
+from src.infra.schemas.ai_client.ai_client import AiClient
+
+from src.usecases.user.get_user_by_chat_id import GetUserByChatId
+from src.usecases.user.modify_token_credit import ModifyUserTokenCredit
+from src.usecases.token_settings.get_token_settings import GetTokenSettings
+from src.usecases.category.get_category import GetCategory
+
+from src.models.schemas.bot.audio_to_text_request_model import AudioToTextRequestModel
+
 from src.domain.schemas.user.user_model import UserModel
-from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
-from src.models.schemas.bot.text_to_audio_request_model import TextToAudioRequestModel
+from src.domain.schemas.token_settings.token_settings_model import TokenSettingsModel
+from src.domain.schemas.category.category_model import CategoryModel
 
-from src.usecases.bot.get_conversation import GetConversation
+from src.models.schemas.user.modify_user_token_credit_input import ModifyUserTokenCreditInput
 
-from src.routes.bot.telegram.general_buttons import home_markup, back_markup
+from src.routes.bot.telegram.buttons import home_markup
 
 from raw_texts.raw_texts import (
     LACK_OF_CREDIT,
@@ -17,59 +25,62 @@ from raw_texts.raw_texts import (
 )
 
 import openai
-from openai import OpenAI
 from io import BytesIO
 from typing import ClassVar, AsyncGenerator, Any
 
 class Produce:
     
-    step: ClassVar[int] = 2
+    step: ClassVar[int] = 3
     
     def __init__(
         self,
         user_repo: IUserRepo,
         token_settings_repo: ITokenSettingsRepo,
-        cache_repo: ICacheRepo,
-        gpt_client: OpenAI,
-        inline_keyboard: IInlineKeyboard,
+        category_repo: ICategoryRepo,
+        ai_client: AiClient,
+        bot_platform: str,
     ):
-        self.user_repo = user_repo
-        self.token_settings_repo = token_settings_repo
-        self.cache_repo = cache_repo
-        self.gpt_client = gpt_client
-        self.inline_keyboard = inline_keyboard
+                
         
-        self.get_conversation_usecase = GetConversation(user_repo, cache_repo)
+        self.get_user_by_chat_id_usecase = GetUserByChatId(user_repo, bot_platform)
+        self.modify_user_token_credit_usecase = ModifyUserTokenCredit(user_repo, bot_platform)
+        self.get_token_settings_usecase = GetTokenSettings(token_settings_repo)
+        self.get_category_usecase = GetCategory(category_repo)
+        
+        self.ai_client = ai_client
+        self.bot_platform = bot_platform
     
     async def execute(
         self,
+        request: AudioToTextRequestModel,
         chat_id: str,
         file_name: str,
         file: BytesIO,
-        request: TextToAudioRequestModel,
     ) -> AsyncGenerator[tuple[str, Any | None, str | None], None]:
         
-        token_settings: TokenSettingsModel = await self.token_settings_repo.get()
+        user: UserModel = await self.get_user_by_chat_id_usecase.execute(chat_id)
+        token_settings: TokenSettingsModel = await self.get_token_settings_usecase.execute()
+        model: CategoryModel = await self.get_category_usecase.execute(request.ai_model_id)
 
-        user: UserModel = await self.user_repo.get_by_chat_id(chat_id)
-
-        if user.tokens < token_settings.tokens_per_prompt:
+        if user.tokens < (model.tokens or token_settings.tokens_per_prompt):
             yield LACK_OF_CREDIT, home_markup, None
-            
-        conversation = await self.get_conversation_usecase.execute(chat_id)
-        # file_id = conversation.messages.get("file_id", None)
-        # file_name = conversation.messages.get("file_name", None)
-            
+                        
         try:
             # yield "در حال پردازش...", back_markup, None
             yield "در حال پردازش...", home_markup, None
-            response = self.gpt_client.audio.transcriptions.create(
-                model="whisper-1",
+            response = self.ai_client.open_ai_client.audio.transcriptions.create(
+                model=model.slug,
                 file=(file_name, file.getvalue()),
             )
         except openai.RateLimitError as e:
             yield RATE_LIMIT_ERROR, home_markup, None
         else:
             yield END_OF_CREATE_ARTICLE, home_markup, response.text
-            await self.user_repo.modify_token_credit(chat_id, -token_settings.tokens_per_prompt)
+            await self.modify_user_token_credit_usecase.execute(
+                ModifyUserTokenCreditInput(
+                    chat_id=chat_id,
+                    bot_platform=self.bot_platform,
+                    value=-(model.tokens or token_settings.tokens_per_prompt),
+                ),
+            )
         

@@ -5,23 +5,28 @@ from fast_depends import inject, Depends
 
 from . import request_name
 from src.models.schemas.bot.callback_request import CallbackDataRequest
+
 from src.repo.interface.Icache import ICacheRepo
 from src.repo.interface.Iuser_repo import IUserRepo
+from src.repo.interface.Icategory_repo import ICategoryRepo
 from src.repo.interface.Itoken_settings_repo import ITokenSettingsRepo
+
+from src.infra.schemas.ai_client.ai_client import AiClient
 from src.routes.bot.inline_keyboard.interface.Iinline_Keyboard import IInlineKeyboard
-from src.routes.depends.repo_depend import cache_repo_depend, user_repo_depend, token_settings_repo_depend
+
+from src.routes.depends.repo_depend import cache_repo_depend, user_repo_depend, category_repo_depend, token_settings_repo_depend
+from src.routes.depends.ai_depend import ai_client_depend
+from src.routes.depends.bot_platform_depend import bot_platform_depend
 from src.routes.depends.inline_keyboard_depend import inline_keyboard_depend
-from src.routes.depends.gpt_depend import gpt_client_depend
-from src.models.schemas.bot.text_to_audio_request_model import TextToAudioRequestModel
-from src.usecases.bot.audio_to_text.steps.choose_ai import ChooseAiPlatform
+
+from src.models.schemas.bot.audio_to_text_request_model import AudioToTextRequestModel
+from src.usecases.bot.audio_to_text.steps.choose_ai_platform import ChooseAiPlatform
+from src.usecases.bot.audio_to_text.steps.choose_model import ChooseModel
 from src.usecases.bot.audio_to_text.steps.request_summary import RequestSummary
 from src.usecases.bot.audio_to_text.steps.produce import Produce
 from src.usecases.bot.audio_to_text.cache import ProduceAudioCache
 
-from openai import OpenAI
 from io import BytesIO
-
-ai_platforms = ["gemini", "chat-gpt"]
 
 @inject
 async def request_steps(
@@ -30,9 +35,11 @@ async def request_steps(
     callback_data: CallbackDataRequest | None = None,
     cache_repo: ICacheRepo = Depends(cache_repo_depend),
     user_repo: IUserRepo = Depends(user_repo_depend),
+    category_repo: ICategoryRepo = Depends(category_repo_depend),
     token_settings_repo: ITokenSettingsRepo = Depends(token_settings_repo_depend),
+    ai_client: AiClient = Depends(ai_client_depend),
+    bot_platform: str = Depends(bot_platform_depend),
     inline_keyboard: IInlineKeyboard = Depends(inline_keyboard_depend),
-    gpt_client: OpenAI = Depends(gpt_client_depend),
 ):
     
     start_point = callback_data is None
@@ -40,13 +47,20 @@ async def request_steps(
     chat_id = update.effective_user.id
       
     callback_data = callback_data or CallbackDataRequest(name=request_name, message_id=update.message.message_id)
-    cache_usecase = ProduceAudioCache(user_repo, cache_repo, ai_platforms)
-    request: TextToAudioRequestModel = await cache_usecase.execute(chat_id, callback_data)
+    
+    cache_usecase = ProduceAudioCache(
+        cache_repo,
+        user_repo,
+        category_repo,
+    )
+    
+    request: AudioToTextRequestModel = await cache_usecase.execute(chat_id, callback_data)
     
     if start_point:
         
-        prompt_usecase = ChooseAiPlatform(ai_platforms, inline_keyboard)
-        text, keyboard = prompt_usecase.execute(callback_data)
+        choose_ai_platform_usecase = ChooseAiPlatform(inline_keyboard)
+        
+        text, keyboard = choose_ai_platform_usecase.execute(callback_data)
                 
         await update.effective_message.reply_text(
             text=text,
@@ -56,8 +70,23 @@ async def request_steps(
         
     elif callback_data.step == ChooseAiPlatform.step:
         
-        prompt_usecase = ChooseAiPlatform(ai_platforms, inline_keyboard)
-        text, keyboard = prompt_usecase.execute(callback_data)
+        choose_ai_platform_usecase = ChooseAiPlatform(inline_keyboard)
+        
+        text, keyboard = choose_ai_platform_usecase.execute(callback_data)
+                
+        await update.effective_message.edit_text(
+            text=text,
+            reply_markup=keyboard,
+        )
+                
+    elif callback_data.step == ChooseModel.step:
+        
+        choose_ai_model_usecase = ChooseModel(
+            category_repo,
+            inline_keyboard,
+        )
+        
+        text, keyboard = await choose_ai_model_usecase.execute(callback_data, request)
                 
         await update.effective_message.edit_text(
             text=text,
@@ -66,8 +95,16 @@ async def request_steps(
         
     elif callback_data.step == RequestSummary.step:
 
-        request_summary = RequestSummary(user_repo, token_settings_repo, cache_repo, inline_keyboard)
-        text, keyboard = await request_summary.execute(chat_id, request, callback_data)
+        request_summary_usecase = RequestSummary(
+            cache_repo,
+            user_repo,
+            token_settings_repo,
+            category_repo,
+            bot_platform,
+            inline_keyboard,
+        )
+        
+        text, keyboard = await request_summary_usecase.execute(callback_data, request, chat_id)
 
         await update.effective_message.edit_text(
             text=text,
@@ -83,8 +120,15 @@ async def request_steps(
         await file.download_to_memory(audio)
         audio.seek(0)
         
-        produce_usecase = Produce(user_repo, token_settings_repo, cache_repo, gpt_client, inline_keyboard)
-        async for text, keyboard, content in produce_usecase.execute(str(chat_id), file_name, audio, request):
+        produce_usecase = Produce(
+            user_repo,
+            token_settings_repo,
+            category_repo,
+            ai_client,
+            bot_platform,
+        )
+        
+        async for text, keyboard, content in produce_usecase.execute(request, str(chat_id), file_name, audio):
             
             if keyboard and content:
                 await update.effective_message.reply_text(

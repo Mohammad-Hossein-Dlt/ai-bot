@@ -3,15 +3,17 @@ from src.infra.settings.settings import settings
 from src.infra.bootstrap.database import init_database_client, terminate_database_client
 from src.infra.bootstrap.cache_database import init_cache_client, terminate_cache_client
 from src.infra.bootstrap.jwt import init_jwt
-from src.infra.bootstrap.gpt_client import init_gpt_client
+from src.infra.bootstrap.ai_client import init_ai_client
 from aiohttp import ClientSession
 
 class AppContextManager:
         
     @classmethod
     def init_context(cls):        
-        AppContext.platform = settings.PLATFORM
-        AppContext.gpt_client = init_gpt_client()
+        AppContext.run_platform = settings.RUN_PLATFORM
+        AppContext.bot_platform = settings.BOT_PLATFORM
+        AppContext.zarinpal_merchant_id = settings.ZARINPAL_MERCHANT_ID
+        AppContext.ai_client = init_ai_client()
         AppContext.jwt = init_jwt()
         
     @classmethod

@@ -41,18 +41,29 @@ css = CSS(
     font_config=font_config,
 )
 
-def generate_pdf(content: str) -> BytesIO:
+def generate_pdf(content: str, with_style: bool = True) -> BytesIO:
+    
     content = markdown2.markdown(content)
     out_put: BytesIO = BytesIO()
-    HTML(
-        string=content
-    ).write_pdf(
-        out_put,
-        stylesheets=[
-            css,
-        ],
-        font_config=font_config,
-    )
-    out_put.seek(0)
-
+    
+    if with_style:
+        HTML(
+            string=content
+        ).write_pdf(
+            out_put,
+            stylesheets=[
+                css,
+            ],
+            font_config=font_config,
+        )
+        out_put.seek(0)
+    else:
+        HTML(
+            string=content
+        ).write_pdf(
+            out_put,
+            font_config=font_config,
+        )
+        out_put.seek(0)
+        
     return out_put

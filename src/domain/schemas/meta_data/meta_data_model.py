@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Self
 
 class MetaDataModel(CustomBaseModel):
+    
     id: int | PydanticObjectId | None = None
     channel_id: str | None = None
     support_id: str | None = None

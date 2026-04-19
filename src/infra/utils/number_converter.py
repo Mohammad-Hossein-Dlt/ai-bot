@@ -26,5 +26,11 @@ def english_to_persian(value: str) -> str:
     return value
 
 
-def number_formatter(value: int) -> str:
+def number_formatter(value: int | float) -> str:
+    
+    if isinstance(value, float):
+        if value.is_integer():
+            # to remove .0
+            return '{:,}'.format(int(value))
+    
     return '{:,}'.format(value)

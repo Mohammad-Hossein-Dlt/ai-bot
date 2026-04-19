@@ -37,12 +37,13 @@ GUIDE_TEXT = '''
 از دستیار هوشمندِ ما استفاده کنید و لذت ببرید! 😃🎉 در صورت داشتن سوال یا نیاز به کمک، به ما پیام دهید. 💬🤝
 '''
 
-CREATE_ARTICLE = 'تولید محتوا'
-CREATE_IMAGE = 'ساخت عکس'
+CONTENT_CREATION = 'تولید محتوا'
+TEXT_TO_IMAGE = 'ساخت عکس'
 TEXT_TO_AUDIO = 'متن به صدا'
 AUDIO_TO_TEXT = 'صدا به متن'
-SHOW_PROFILE = 'پروفایل'
+PROFILE = 'پروفایل'
 ADD_CREDIT = 'افزایش اعتبار'
+PRICING = "تعرفه ها"
 GUIDE = 'راهنما'
 
 # BACK = "بازگشت 🔙"
@@ -87,7 +88,7 @@ RATE_LIMIT_ERROR = '''
 🙏🙏
 '''
 
-PRODUCE_CONTENT_INFO = '''
+CONTENT_CREATION_INFO = '''
 مشخصات درخواست شما:
 دسته بندی: category
 تعداد کلمات: words_length
@@ -101,9 +102,9 @@ START_AGAIN = '''
 RESTART = "یکی از گزینه های زیر را انتخاب کنید"
 
 BUTTONS = [
-    CREATE_ARTICLE,
+    CONTENT_CREATION,
     ADD_CREDIT,
-    SHOW_PROFILE,
+    PROFILE,
     GUIDE,
     BACK,
 ]

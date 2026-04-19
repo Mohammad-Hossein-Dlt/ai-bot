@@ -1,12 +1,18 @@
 from src.repo.interface.Iuser_repo import IUserRepo
 from src.domain.schemas.user.user_model import UserModel
-from src.domain.schemas.user.account_model import AccountModel
 from src.infra.database.mongodb.collections.user_collection import UserCollection
-from bson.objectid import ObjectId
-from beanie.operators import In
 from src.infra.exceptions.exceptions import EntityNotFoundError, DuplicateEntityError
+from bson.objectid import ObjectId
+from beanie.operators import And
 
 class UserMongodbRepo(IUserRepo):
+    
+    def __init__(
+        self,
+        bot_platform: str | None = None,
+    ):
+        self.bot_platform = bot_platform
+        
             
     async def create(
         self,
@@ -35,13 +41,19 @@ class UserMongodbRepo(IUserRepo):
         
     async def get_by_chat_id(
         self,
-        *args: AccountModel | str | int,
+        chat_id: int | str,
+        bot_platform: str | None = None,
     ) -> UserModel:
     
         try:
-            chat_ids = [arg.chat_id if isinstance(arg, AccountModel) else str(arg) for arg in args]
+            if isinstance(chat_id, int):
+                chat_id = str(chat_id)
+            
             user = await UserCollection.find_one(
-                In(UserCollection.platform_accounts.chat_id, chat_ids),
+                And(
+                    UserCollection.platform_accounts.chat_id == chat_id,
+                    UserCollection.platform_accounts.platform == (bot_platform or self.bot_platform),
+                ),
             )
             return UserModel.model_validate(user, from_attributes=True)
         except:
@@ -62,7 +74,7 @@ class UserMongodbRepo(IUserRepo):
                 },
                 db_stack="no-sql",
             )
-                        
+            
             await UserCollection.find_one(
                 UserCollection.id == user.id,
             ).update(
@@ -70,35 +82,32 @@ class UserMongodbRepo(IUserRepo):
                     "$set": to_update,
                 },
             )
-                        
-            return await self.get_by_chat_id(user.platform_accounts)
+            
+            return await self.get_by_id(user.id)
         except:
             raise EntityNotFoundError(status_code=404, message="User not found")
     
     async def modify_token_credit(
         self,
-        chat_id: str,
+        user: UserModel,
         value: int,
     ) -> UserModel:
     
-        try: 
+        try:
             
-            await UserCollection.find_one(
-                # In(UserCollection.platform_accounts.chat_id, [chat_id]),
-                UserCollection.platform_accounts.chat_id == chat_id,
-            ).update_one(
-                [
-                    {
-                        "$set": {
-                            UserCollection.tokens: {
-                                "$max": [0, {"$add": ["$tokens", value]}],
-                            },
+            to_update = [
+                {
+                    "$set": {
+                        UserCollection.tokens: {
+                            "$max": [0, {"$add": ["$tokens", value]}],
                         },
                     },
-                ],
-            )
+                },
+            ]
             
-            return await self.get_by_chat_id(chat_id)
+            await UserCollection.find_one(UserCollection.id == user.id).update_one(to_update)
+            
+            return await self.get_by_id(user.id)
         
         except EntityNotFoundError:
             raise
@@ -142,13 +151,20 @@ class UserMongodbRepo(IUserRepo):
         
     async def delete_by_chat_id(
         self,
-        chat_id: str,
+        chat_id: int | str,
+        bot_platform: str,
     ) -> bool:
     
         try:
+            
+            if isinstance(chat_id, int):
+                chat_id = str(chat_id)
+            
             result = await UserCollection.find(
-                # In(UserCollection.platform_accounts.chat_id, [chat_id]),
-                UserCollection.platform_accounts.chat_id == chat_id,
+                And(
+                    UserCollection.platform_accounts.chat_id == chat_id,
+                    UserCollection.platform_accounts.platform == (bot_platform or self.bot_platform),
+                ),
             ).delete()
             
             return bool(result.deleted_count)

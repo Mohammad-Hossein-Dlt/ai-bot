@@ -16,12 +16,12 @@ from src.infra.exceptions.exceptions import AppBaseException
     }    
 )
 async def create_user(
-    user: CreateUserInput = Query(...),
+    new_user: CreateUserInput = Query(...),
     user_repo: IUserRepo = Depends(user_repo_depend),
 ):
     try:
         create_user_usecase = CreateUser(user_repo)
-        output = await create_user_usecase.execute(user)
+        output = await create_user_usecase.execute(new_user)
         return output.model_dump(mode="json")
     except AppBaseException as ex:
         raise HTTPException(status_code=ex.status_code, detail=str(ex))

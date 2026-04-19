@@ -16,12 +16,12 @@ from src.infra.exceptions.exceptions import AppBaseException
     }    
 )
 async def create_bot_settings(
-    bot_settings: CreateBotSettingsInput = Query(...),
+    new_bot_settings: CreateBotSettingsInput = Query(...),
     bot_settings_repo: IBotSettingsRepo = Depends(bot_settings_repo_depend),
 ):
     try:
         create_bot_settings_usecase = CreateBotSettings(bot_settings_repo)
-        output = await create_bot_settings_usecase.execute(bot_settings)
+        output = await create_bot_settings_usecase.execute(new_bot_settings)
         return output.model_dump(mode="json")
     except AppBaseException as ex:
         raise HTTPException(status_code=ex.status_code, detail=str(ex))

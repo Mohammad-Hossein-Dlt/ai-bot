@@ -3,6 +3,7 @@ from typing import Literal
 from datetime import datetime
 
 class JWTPayload(BaseModel):
+    
     user_id: int | str
     type: Literal["access", "refresh"]
     exp: datetime | None = None

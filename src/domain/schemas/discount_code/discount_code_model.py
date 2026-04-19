@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Self
 
 class DiscountCodeModel(CustomBaseModel):
+    
     id: int | PydanticObjectId | None = None
     code: str | None = None
     percent: int | None = None
@@ -21,3 +22,12 @@ class DiscountCodeModel(CustomBaseModel):
             self.updated_at = self.created_at
         
         return self
+    
+    def check_expiration(
+        self,
+    ) -> bool:
+        
+        if self.expires_at and self.expires_at.replace(tzinfo=timezone.utc) <= datetime.now(timezone.utc):
+            return True
+        
+        return False

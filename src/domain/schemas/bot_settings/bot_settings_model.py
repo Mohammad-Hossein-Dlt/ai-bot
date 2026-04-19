@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Self
 
 class BotSettingsModel(CustomBaseModel):
+    
     id: int | PydanticObjectId | None = None
     enable_bot: bool | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

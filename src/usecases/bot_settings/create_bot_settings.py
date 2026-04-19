@@ -14,11 +14,11 @@ class CreateBotSettings:
     
     async def execute(
         self,
-        settings: CreateBotSettingsInput,
+        new_bot_settings: CreateBotSettingsInput,
     ) -> BotSettingsModel:
         
         try:
-            to_create: BotSettingsModel = BotSettingsModel.model_validate(settings, from_attributes=True)
+            to_create: BotSettingsModel = BotSettingsModel.model_validate(new_bot_settings, from_attributes=True)
             return await self.settings_repo.create(to_create)
         except AppBaseException:
             raise

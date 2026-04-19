@@ -15,12 +15,18 @@ class CreateUser:
     
     async def execute(
         self,
-        user: CreateUserInput,
+        new_user: CreateUserInput,
     ) -> UserModel:
         
         try:
-            # to_create: UserModel = UserModel.model_validate(user, from_attributes=True)
-            to_create: UserModel = UserModel(platform_accounts=[AccountModel(chat_id=user.chat_id, platform=user.platform)])
+            to_create: UserModel = UserModel(
+                platform_accounts=[
+                    AccountModel(
+                        chat_id=new_user.chat_id,
+                        platform=new_user.platform,
+                    ),
+                ],
+            )
             return await self.user_repo.create(to_create)
         except AppBaseException:
             raise

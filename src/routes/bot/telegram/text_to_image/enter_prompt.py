@@ -19,14 +19,14 @@ from src.usecases.bot.text_to_image.steps.enter_prompt import EnterPrompt
 async def entry_point(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-    user_repo: IUserRepo = Depends(user_repo_depend),
     cache_repo: ICacheRepo = Depends(cache_repo_depend),
+    user_repo: IUserRepo = Depends(user_repo_depend),
     inline_keyboard: IInlineKeyboard = Depends(inline_keyboard_depend),
 ) -> int:
     
     chat_id = update.effective_user.id
     
-    get_conversation_usecase = GetConversation(user_repo, cache_repo)
+    get_conversation_usecase = GetConversation(cache_repo, user_repo)
     conversation = await get_conversation_usecase.execute(chat_id)
 
     enter_prompt_usecase = EnterPrompt(inline_keyboard)
@@ -49,7 +49,7 @@ async def back_from_conversation(
     
     chat_id = update.effective_user.id
     
-    get_conversation_usecase = GetConversation(user_repo, cache_repo)
+    get_conversation_usecase = GetConversation(cache_repo, user_repo)
     conversation = await get_conversation_usecase.execute(chat_id)
     
     callback_data = conversation.callback_data
@@ -73,8 +73,8 @@ async def enter_prompt(
     chat_id = update.effective_user.id
     prompt = update.effective_message.text
 
-    save_conversation_usecase = SaveConversation(user_repo, cache_repo)
-    conversation: ConversationModel = await save_conversation_usecase.execute(chat_id, message={"prompt": prompt})
+    save_conversation_usecase = SaveConversation(cache_repo, user_repo)
+    conversation: ConversationModel = await save_conversation_usecase.execute(chat_id, messages={"prompt": prompt})
     
     callback_data = conversation.callback_data
     

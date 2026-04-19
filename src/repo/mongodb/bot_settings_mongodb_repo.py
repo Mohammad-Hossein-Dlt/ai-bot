@@ -12,7 +12,7 @@ class BotSettingsMongodbRepo(IBotSettingsRepo):
 
         try:
             await self.get()
-            raise DuplicateEntityError(409, f"Settings already exist")
+            raise DuplicateEntityError(409, "Settings already exist")
         except EntityNotFoundError:
             new_meta_data = await BotSettingsCollection.insert(
                 BotSettingsCollection(**settings.model_dump(exclude={"id", "_id"})),

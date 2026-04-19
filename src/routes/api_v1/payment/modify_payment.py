@@ -1,7 +1,7 @@
 from ._router import router
 from fastapi import Depends, Query, HTTPException
 from src.routes.http_response.responses import ResponseMessage
-from src.models.schemas.payment.payment_input import PaymentInput
+from src.models.schemas.payment.modify_payment_input import ModifyPaymentInput
 from src.usecases.payment.modify_payment import ModifyPayment
 from src.repo.interface.Ipayment_repo import IPaymentRepo
 from src.routes.depends.repo_depend import payment_repo_depend
@@ -16,7 +16,7 @@ from src.infra.exceptions.exceptions import AppBaseException
     }    
 )
 async def modify_payment(
-    payment: PaymentInput = Query(...),
+    payment: ModifyPaymentInput = Query(...),
     payment_repo: IPaymentRepo = Depends(payment_repo_depend),
 ):
     try:

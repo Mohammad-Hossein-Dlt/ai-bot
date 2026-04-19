@@ -12,7 +12,7 @@ class TokenSettingsMongodbRepo(ITokenSettingsRepo):
 
         try:
             await self.get()
-            raise DuplicateEntityError(409, f"Token Settings already exist")
+            raise DuplicateEntityError(409, "Token Settings already exist")
         except EntityNotFoundError:
             new_meta_data = await TokenSettingsCollection.insert(
                 TokenSettingsCollection(**token_settings.model_dump(exclude={"id", "_id"})),

@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from src.domain.schemas.user.user_model import UserModel
-from src.domain.schemas.user.account_model import AccountModel
 
 class IUserRepo(ABC):
         
@@ -20,7 +19,8 @@ class IUserRepo(ABC):
     
     @abstractmethod
     async def get_by_chat_id(
-        *values: AccountModel | str | int,
+        chat_id: int | str,
+        bot_platform: str | None = None,
     ) -> UserModel:
     
         raise NotImplementedError
@@ -34,7 +34,7 @@ class IUserRepo(ABC):
     
     @abstractmethod
     async def modify_token_credit(
-        chat_id: str,
+        user: UserModel,
         value: int,
     ) -> UserModel:
     
@@ -56,7 +56,8 @@ class IUserRepo(ABC):
     
     @abstractmethod
     async def delete_by_chat_id(
-        chat_id: str,
+        chat_id: int | str,
+        bot_platform: str | None = None,
     ) -> bool:
     
         raise NotImplementedError
